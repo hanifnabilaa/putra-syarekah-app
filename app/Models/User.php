@@ -42,4 +42,30 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasOne(Daerah::class);
     }
+
+     public function stokLogs()
+    {
+        return $this->hasMany(StockLog::class);
+    }
+
+    public function pembayaranDikonfirmasi()
+    {
+        return $this->hasMany(Payment::class, 'confirmed_by');
+    }
+
+    // Helper
+    public function isPercetakan(): bool
+    {
+        return $this->role === UserRole::ADMIN_PERCETAKAN;
+    }
+
+    public function isKeuangan(): bool
+    {
+        return $this->role === UserRole::ADMIN_KEUANGAN;
+    }
+
+    public function isDaerah(): bool
+    {
+        return $this->role === UserRole::DAERAH;
+    }
 }

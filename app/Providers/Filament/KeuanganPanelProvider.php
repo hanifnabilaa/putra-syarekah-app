@@ -26,6 +26,7 @@ class KeuanganPanelProvider extends PanelProvider
         return $panel
             ->id('keuangan')
             ->path('keuangan')
+            ->login()
             ->colors([
                 'primary' => Color::Amber,
             ])

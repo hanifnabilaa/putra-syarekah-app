@@ -26,6 +26,7 @@ class PercetakanPanelProvider extends PanelProvider
         return $panel
             ->id('percetakan')
             ->path('percetakan')
+            ->login()
             ->colors([
                 'primary' => Color::Teal,
             ])
