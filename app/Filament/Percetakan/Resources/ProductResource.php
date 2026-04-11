@@ -42,6 +42,7 @@ class ProductResource extends Resource
                 FileUpload::make('image')
                     ->label('Foto Produk')
                     ->image()
+                    ->multiple()
                     ->disk('public')
                     ->directory('Produk')
                     ->imageResizeMode('cover')

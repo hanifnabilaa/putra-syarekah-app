@@ -23,13 +23,20 @@ class Product extends Model
         'price'     => 'decimal:2',
         'stock'     => 'integer',
         'is_active' => 'boolean',
+        'image'     => 'array',
     ];
 
     // ─── Accessors ──────────────────────────────────────────────────────────────
 
-    public function getImageUrlAttribute(): ?string
+    public function getImageUrlsAttribute(): array
     {
-        return $this->image ? Storage::disk('public')->url($this->image) : null;
+        if (empty($this->image)) {
+            return [];
+        }
+
+        return array_map(function ($path) {
+            return Storage::disk('public')->url($path);
+        }, is_string($this->image) ? [$this->image] : $this->image);
     }
 
     // ─── Scopes ─────────────────────────────────────────────────────────────────

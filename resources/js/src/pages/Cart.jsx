@@ -24,6 +24,17 @@ const Cart = () => {
             return;
         }
 
+        for (const item of cart) {
+            if (item.quantity % 10 !== 0) {
+                setError(`Jumlah pesanan untuk ${item.product.name} harus kelipatan 10.`);
+                return;
+            }
+            if (item.quantity > item.product.stock) {
+                setError(`Jumlah pesanan untuk ${item.product.name} melebihi stok yang tersedia.`);
+                return;
+            }
+        }
+
         const items = cart.map((item) => ({
             product_id: item.product.id,
             quantity: item.quantity,
@@ -79,8 +90,10 @@ const Cart = () => {
                     {/* Daftar Item */}
                     {cart.map((item) => (
                         <div key={item.product.id} className="flex gap-4 p-4 bg-white shadow-sm border border-gray-100 rounded-xl">
-                            <div className="w-24 h-24 bg-gray-200 rounded-md overflow-hidden flex-shrink-0">
-                                {item.product.image_url ? (
+                            <div className="w-24 h-24 bg-gray-200 rounded-md overflow-hidden flex-shrink-0 relative">
+                                {(item.product.image_urls && item.product.image_urls.length > 0) ? (
+                                    <img src={item.product.image_urls[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                                ) : item.product.image_url ? (
                                     <img src={item.product.image_url} alt={item.product.name} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">No Image</div>
@@ -105,14 +118,16 @@ const Cart = () => {
                                             type="number"
                                             value={item.quantity}
                                             onChange={(e) => updateQuantity(item.product.id, parseInt(e.target.value) || 0)}
-                                            className="w-12 text-center border-x-0 border-y-0 p-1 text-sm focus:ring-0"
+                                            className="w-16 text-center border-x-0 border-y-0 p-1 text-sm focus:ring-0"
                                             step="10"
                                             min="10"
+                                            max={item.product.stock}
                                         />
                                         <button
                                             type="button"
-                                            onClick={() => updateQuantity(item.product.id, item.quantity + 10)}
-                                            className="px-2 py-1 text-gray-600 hover:bg-gray-100 rounded-r-lg"
+                                            onClick={() => updateQuantity(item.product.id, Math.min(item.product.stock, item.quantity + 10))}
+                                            disabled={item.quantity + 10 > item.product.stock}
+                                            className="px-2 py-1 text-gray-600 hover:bg-gray-100 rounded-r-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                         >+</button>
                                     </div>
                                     <button

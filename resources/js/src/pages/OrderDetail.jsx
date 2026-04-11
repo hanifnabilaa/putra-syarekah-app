@@ -62,7 +62,9 @@ const OrderDetail = () => {
                             {order.items.map((item) => (
                                 <li key={item.id} className="p-6 flex items-start space-x-4">
                                     <div className="w-20 h-20 bg-gray-200 rounded-md flex-shrink-0">
-                                        {item.product?.image_url ? (
+                                        {(item.product?.image_urls && item.product.image_urls.length > 0) ? (
+                                            <img src={item.product.image_urls[0]} alt="" className="w-full h-full object-cover rounded-md" />
+                                        ) : item.product?.image_url ? (
                                             <img src={item.product.image_url} alt="" className="w-full h-full object-cover rounded-md" />
                                         ) : (
                                             <div className="w-full h-full flex justify-center items-center text-xs text-gray-400">No Img</div>
