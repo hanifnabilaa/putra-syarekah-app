@@ -20,17 +20,17 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-book-open';
-    protected static ?string $navigationLabel = 'Manajemen Kitab';
-    protected static ?string $modelLabel = 'Kitab';
-    protected static ?string $pluralModelLabel = 'Kitab';
+    protected static ?string $navigationLabel = 'Produk';
+    protected static ?string $modelLabel = 'Produk';
+    protected static ?string $pluralModelLabel = 'Produk';
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $form): Schema
     {
         return $form->schema([
-            \Filament\Schemas\Components\Section::make('Informasi Kitab')->schema([
+            \Filament\Schemas\Components\Section::make('Informasi Produk')->schema([
                 TextInput::make('name')
-                    ->label('Nama Kitab')
+                    ->label('Nama Produk')
                     ->required()
                     ->maxLength(255),
 
@@ -40,9 +40,10 @@ class ProductResource extends Resource
                     ->columnSpanFull(),
 
                 FileUpload::make('image')
-                    ->label('Foto Kitab')
+                    ->label('Foto Produk')
                     ->image()
-                    ->directory('kitab')
+                    ->disk('public')
+                    ->directory('Produk')
                     ->imageResizeMode('cover')
                     ->imageCropAspectRatio('4:3')
                     ->columnSpanFull(),
@@ -79,7 +80,7 @@ class ProductResource extends Resource
                     ->width(70),
 
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Nama Kitab')
+                    ->label('Nama Produk')
                     ->searchable()
                     ->sortable(),
 

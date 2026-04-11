@@ -7,7 +7,7 @@ const Profile = () => {
     const { user, checkAuth } = useAuth();
     const [updating, setUpdating] = useState(false);
     const [message, setMessage] = useState('');
-    
+
     const [formData, setFormData] = useState({
         address: user?.daerah?.address || '',
         phone: user?.daerah?.phone || '',
@@ -87,13 +87,13 @@ const Profile = () => {
                         Perbarui alamat pengiriman dan telepon umum daerah Anda.
                     </p>
                 </div>
-                
+
                 {message && (
                     <div className="p-4 bg-green-50 text-green-700 text-sm border-b border-green-100">
                         {message}
                     </div>
                 )}
-                
+
                 <form onSubmit={handleSubmit} className="px-4 py-5 sm:p-6 space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
@@ -105,7 +105,7 @@ const Profile = () => {
                             value={formData.address}
                             onChange={handleChange}
                             className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                            placeholder="Alamat lengkap tujuan pengiriman kitab"
+                            placeholder="Alamat lengkap tujuan pengiriman Produk"
                         />
                     </div>
                     <div>

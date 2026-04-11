@@ -6,8 +6,12 @@ use App\Enums\OrderStatus;
 use App\Filament\Percetakan\Resources\OrderResource\Pages;
 use App\Models\Order;
 use App\Services\OrderService;
-use Filament\Forms;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Repeater;
 
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -26,34 +30,34 @@ class OrderResource extends Resource
     public static function form(Schema $form): Schema
     {
         return $form->schema([
-            \Filament\Schemas\Components\Section::make('Info Pesanan')->schema([
-                \Filament\Schemas\Components\TextInput::make('order_code')->label('Kode Pesanan')->disabled(),
-                \Filament\Schemas\Components\Select::make('daerah_id')
+            Section::make('Info Pesanan')->schema([
+                TextInput::make('order_code')->label('Kode Pesanan')->disabled(),
+                Select::make('daerah_id')
                     ->label('Daerah')
                     ->relationship('daerah', 'name')
                     ->searchable()
                     ->required(),
-                \Filament\Schemas\Components\Select::make('shipping_method')
+                Select::make('shipping_method')
                     ->label('Metode Pengiriman')
                     ->options(['shipping' => 'Dikirim ke Alamat', 'pickup' => 'Ambil Sendiri'])
                     ->required(),
-                \Filament\Schemas\Components\Textarea::make('shipping_address')
+                Textarea::make('shipping_address')
                     ->label('Alamat Pengiriman')
                     ->rows(2),
-                \Filament\Schemas\Components\Textarea::make('notes')->label('Catatan')->rows(2),
-                \Filament\Schemas\Components\TextInput::make('total_bill')
+                Textarea::make('notes')->label('Catatan')->rows(2),
+                TextInput::make('total_bill')
                     ->label('Total Tagihan')
                     ->prefix('Rp')
                     ->numeric()
                     ->disabled(),
             ])->columns(2),
 
-            \Filament\Schemas\Components\Section::make('Item Pesanan')->schema([
-                \Filament\Schemas\Components\Repeater::make('items')
+            Section::make('Item Pesanan')->schema([
+                Repeater::make('items')
                     ->relationship()
                     ->schema([
-                        \Filament\Schemas\Components\Select::make('product_id')
-                            ->label('Kitab')
+                        Select::make('product_id')
+                            ->label('Produk')
                             ->relationship('product', 'name')
                             ->required()
                             ->live()
@@ -63,13 +67,13 @@ class OrderResource extends Resource
                                     $set('unit_price', $product->price);
                                 }
                             }),
-                        \Filament\Schemas\Components\TextInput::make('quantity')
+                        TextInput::make('quantity')
                             ->label('Jumlah')
                             ->numeric()
                             ->required()
                             ->minValue(10)
                             ->step(10),
-                        \Filament\Schemas\Components\TextInput::make('unit_price')
+                        TextInput::make('unit_price')
                             ->label('Harga Satuan')
                             ->numeric()
                             ->prefix('Rp')
@@ -99,7 +103,7 @@ class OrderResource extends Resource
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('items_count')
-                    ->label('Jml Kitab')
+                    ->label('Jml Produk')
                     ->counts('items'),
 
                 Tables\Columns\TextColumn::make('total_bill')
@@ -144,7 +148,7 @@ class OrderResource extends Resource
                     ->color('danger')
                     ->visible(fn (Order $record) => $record->status === OrderStatus::SUBMITTED)
                     ->form([
-                        \Filament\Schemas\Components\Textarea::make('rejection_reason')
+                        Textarea::make('rejection_reason')
                             ->label('Alasan Penolakan')
                             ->required()
                             ->rows(3),

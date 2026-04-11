@@ -20,7 +20,7 @@ const Catalog = () => {
             <div className="md:flex md:items-center md:justify-between">
                 <div className="min-w-0 flex-1">
                     <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                        Katalog Kitab
+                        Katalog Produk
                     </h2>
                 </div>
             </div>
@@ -29,7 +29,7 @@ const Catalog = () => {
                 <Search className="h-5 w-5 text-gray-400 mr-2" />
                 <input
                     type="text"
-                    placeholder="Cari kitab..."
+                    placeholder="Cari Produk..."
                     className="w-full border-none focus:ring-0 p-0 text-gray-900 sm:text-sm"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -46,7 +46,7 @@ const Catalog = () => {
                 </div>
             ) : (
                 <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
-                    <p className="text-gray-500">Tidak ada kitab yang ditemukan.</p>
+                    <p className="text-gray-500">Tidak ada Produk yang ditemukan.</p>
                 </div>
             )}
         </div>

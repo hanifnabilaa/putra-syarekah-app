@@ -19,7 +19,7 @@ const Dashboard = () => {
                     api.get('/orders', { params: { status: 'submitted' } }),
                     api.get('/bills', { params: { status: 'unpaid' } }),
                 ]);
-                
+
                 setStats({
                     active_orders: ordersRes.data.meta?.total || 0,
                     pending_bills: billsRes.data.meta?.total || 0,
@@ -48,17 +48,17 @@ const Dashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                <StatCard 
-                    title="Pesanan Menunggu Persetujuan" 
-                    value={loading ? '...' : stats.active_orders} 
-                    icon={ClipboardList} 
-                    colorClass={{ bg: 'bg-blue-100', text: 'text-blue-600' }} 
+                <StatCard
+                    title="Pesanan Menunggu Persetujuan"
+                    value={loading ? '...' : stats.active_orders}
+                    icon={ClipboardList}
+                    colorClass={{ bg: 'bg-blue-100', text: 'text-blue-600' }}
                 />
-                <StatCard 
-                    title="Tagihan Belum Lunas" 
-                    value={loading ? '...' : stats.pending_bills} 
-                    icon={FileText} 
-                    colorClass={{ bg: 'bg-red-100', text: 'text-red-600' }} 
+                <StatCard
+                    title="Tagihan Belum Lunas"
+                    value={loading ? '...' : stats.pending_bills}
+                    icon={FileText}
+                    colorClass={{ bg: 'bg-red-100', text: 'text-red-600' }}
                 />
             </div>
 
@@ -69,7 +69,7 @@ const Dashboard = () => {
                         <ShoppingCart className="h-6 w-6 text-primary-500 mr-3" />
                         <div>
                             <h4 className="font-medium text-gray-900">Buat Pesanan Baru</h4>
-                            <p className="text-sm text-gray-500">Lihat katalog kitab</p>
+                            <p className="text-sm text-gray-500">Lihat katalog Produk</p>
                         </div>
                     </Link>
                     <Link to="/orders" className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">

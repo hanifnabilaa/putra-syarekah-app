@@ -8,6 +8,10 @@ use App\Models\Bill;
 use App\Services\BillService;
 use Filament\Forms;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\DatePicker;
 
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -26,12 +30,12 @@ class BillResource extends Resource
     public static function form(Schema $form): Schema
     {
         return $form->schema([
-            \Filament\Schemas\Components\Section::make('Info Tagihan')->schema([
-                \Filament\Schemas\Components\TextInput::make('order.order_code')->label('Kode Pesanan')->disabled(),
-                \Filament\Schemas\Components\TextInput::make('total_bill')->label('Total Tagihan')->prefix('Rp')->disabled(),
-                \Filament\Schemas\Components\TextInput::make('total_paid')->label('Total Dibayar')->prefix('Rp')->disabled(),
-                \Filament\Schemas\Components\TextInput::make('remaining_bill')->label('Sisa Tagihan')->prefix('Rp')->disabled(),
-                \Filament\Schemas\Components\TextInput::make('status')->label('Status')->disabled(),
+            Section::make('Info Tagihan')->schema([
+                TextInput::make('order.order_code')->label('Kode Pesanan')->disabled(),
+                TextInput::make('total_bill')->label('Total Tagihan')->prefix('Rp')->disabled(),
+                TextInput::make('total_paid')->label('Total Dibayar')->prefix('Rp')->disabled(),
+                TextInput::make('remaining_bill')->label('Sisa Tagihan')->prefix('Rp')->disabled(),
+                TextInput::make('status')->label('Status')->disabled(),
             ])->columns(2),
         ]);
     }
@@ -89,17 +93,17 @@ class BillResource extends Resource
                     ->color('success')
                     ->visible(fn (Bill $record) => $record->status !== BillStatus::PAID)
                     ->form([
-                        \Filament\Schemas\Components\TextInput::make('amount')
+                        TextInput::make('amount')
                             ->label('Jumlah Dibayar (Rp)')
                             ->required()
                             ->numeric()
                             ->prefix('Rp')
                             ->minValue(1),
-                        \Filament\Schemas\Components\DatePicker::make('payment_date')
+                        DatePicker::make('payment_date')
                             ->label('Tanggal Pembayaran')
                             ->required()
                             ->default(now()),
-                        \Filament\Schemas\Components\Textarea::make('notes')
+                        Textarea::make('notes')
                             ->label('Keterangan (misal: Transfer BCA, Tunai)')
                             ->rows(2),
                     ])

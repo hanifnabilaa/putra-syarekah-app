@@ -1,8 +1,8 @@
 <x-filament-panels::page>
     <div class="mb-4">
         <a href="{{ \App\Filament\Percetakan\Resources\ProductResource::getUrl('index') }}"
-           class="text-sm text-primary-600 hover:underline">
-            &larr; Kembali ke Daftar Kitab
+            class="text-sm text-primary-600 hover:underline">
+            &larr; Kembali ke Daftar Produk
         </a>
     </div>
 

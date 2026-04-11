@@ -41,7 +41,7 @@ const Orders = () => {
                                             <div className="mt-2 sm:flex sm:justify-between">
                                                 <div className="sm:flex">
                                                     <p className="flex items-center text-sm text-gray-500">
-                                                        {order.items?.length || 0} macam kitab
+                                                        {order.items?.length || 0} macam Produk
                                                     </p>
                                                 </div>
                                                 <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
