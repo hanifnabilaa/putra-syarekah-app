@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text('shipping_address')->nullable();
             $table->decimal('total_bill', 12, 2)->default(0);
             $table->text('notes')->nullable();
+            $table->text('rejection_reason')->nullable();
             $table->index(['daerah_id', 'status']);
             $table->index('created_at');
             $table->timestamps();

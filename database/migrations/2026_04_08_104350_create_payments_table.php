@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('bill_id')->constrained('bills')->cascadeOnDelete();
             $table->decimal('amount', 12, 2);
-            $table->foreignId('confirmed_by')->nullable()->constrained('users')->cascadeOnDelete();
+            $table->foreignId('confirmed_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->date('payment_date')->nullable();
             $table->timestamp('confirmed_at')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
