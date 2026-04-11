@@ -7,7 +7,7 @@ import { classNames } from '../utils/helpers';
 
 const navigation = [
     { name: 'Dashboard', href: '/', icon: Home },
-    { name: 'Katalog Kitab', href: '/catalog', icon: BookOpen },
+    { name: 'Katalog Produk', href: '/catalog', icon: BookOpen },
     { name: 'Pesanan Saya', href: '/orders', icon: ClipboardList },
     { name: 'Tagihan', href: '/bills', icon: FileText },
     { name: 'Profil Daerah', href: '/profile', icon: UserIcon },
@@ -99,7 +99,7 @@ export const Layout = () => {
                             {/* Additional header content can go here */}
                         </div>
                         <div className="ml-4 flex items-center md:ml-6 gap-4">
-                            <button 
+                            <button
                                 onClick={() => navigate('/cart')}
                                 className="relative rounded-full bg-white p-1 text-gray-400 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
                             >

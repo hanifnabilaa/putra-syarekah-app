@@ -9,7 +9,10 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Shipment;
 use App\Services\ShipmentService;
-use Filament\Forms;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\DatePicker;
 use Filament\Schemas\Schema;
 
 use Filament\Notifications\Notification;
@@ -29,8 +32,8 @@ class ShipmentResource extends Resource
     public static function form(Schema $form): Schema
     {
         return $form->schema([
-            \Filament\Schemas\Components\Section::make('Pilih Pesanan')->schema([
-                \Filament\Schemas\Components\Select::make('order_id')
+            Section::make('Pilih Pesanan')->schema([
+                Select::make('order_id')
                     ->label('Pesanan')
                     ->options(
                         Order::where('status', OrderStatus::APPROVED)
@@ -42,19 +45,19 @@ class ShipmentResource extends Resource
                     ->reactive()
                     ->searchable(),
 
-                \Filament\Schemas\Components\Select::make('method')
+                Select::make('method')
                     ->label('Metode')
                     ->options(['shipping' => 'Dikirim', 'pickup' => 'Ambil Sendiri'])
                     ->required(),
 
-                \Filament\Schemas\Components\Textarea::make('shipping_address')
+                Textarea::make('shipping_address')
                     ->label('Alamat Pengiriman')
                     ->rows(2),
 
-                \Filament\Schemas\Components\DatePicker::make('shipping_date')
+                DatePicker::make('shipping_date')
                     ->label('Tanggal Kirim'),
 
-                \Filament\Schemas\Components\Textarea::make('notes')
+                Textarea::make('notes')
                     ->label('Keterangan')
                     ->rows(2),
             ])->columns(2),
@@ -124,7 +127,7 @@ class ShipmentResource extends Resource
                         Notification::make()->title('Status diperbarui: Diterima')->success()->send();
                     }),
 
-                Tables\Actions\ViewAction::make(),
+                \Filament\Actions\ViewAction::make(),
             ]);
     }
 

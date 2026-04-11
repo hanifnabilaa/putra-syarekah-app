@@ -15,6 +15,11 @@ const Cart = () => {
     const [notes, setNotes] = useState('');
     const [error, setError] = useState('');
 
+    const isCartValid = cart.every(item => 
+        item.quantity > 0 && 
+        item.quantity % 10 === 0
+    );
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -24,15 +29,9 @@ const Cart = () => {
             return;
         }
 
-        for (const item of cart) {
-            if (item.quantity % 10 !== 0) {
-                setError(`Jumlah pesanan untuk ${item.product.name} harus kelipatan 10.`);
-                return;
-            }
-            if (item.quantity > item.product.stock) {
-                setError(`Jumlah pesanan untuk ${item.product.name} melebihi stok yang tersedia.`);
-                return;
-            }
+        if (!isCartValid) {
+            setError('Terdapat item yang tidak valid (bukan kelipatan 10).');
+            return;
         }
 
         const items = cart.map((item) => ({
@@ -107,32 +106,36 @@ const Cart = () => {
                                     </div>
                                     <p className="text-sm text-gray-500 mt-1">{formatRupiah(item.product.price)} / eksemplar</p>
                                 </div>
-                                <div className="flex justify-between items-center mt-4">
-                                    <div className="flex items-center border rounded-lg">
-                                        <button
-                                            type="button"
-                                            onClick={() => updateQuantity(item.product.id, Math.max(10, item.quantity - 10))}
-                                            className="px-2 py-1 text-gray-600 hover:bg-gray-100 rounded-l-lg"
-                                        >-</button>
-                                        <input
-                                            type="number"
-                                            value={item.quantity}
-                                            onChange={(e) => updateQuantity(item.product.id, parseInt(e.target.value) || 0)}
-                                            className="w-16 text-center border-x-0 border-y-0 p-1 text-sm focus:ring-0"
-                                            step="10"
-                                            min="10"
-                                            max={item.product.stock}
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => updateQuantity(item.product.id, Math.min(item.product.stock, item.quantity + 10))}
-                                            disabled={item.quantity + 10 > item.product.stock}
-                                            className="px-2 py-1 text-gray-600 hover:bg-gray-100 rounded-r-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >+</button>
+                                <div className="flex justify-between items-end mt-4">
+                                    <div className="flex flex-col items-start px-1">
+                                        <div className="flex items-center border rounded-lg overflow-hidden">
+                                            <button
+                                                type="button"
+                                                onClick={() => updateQuantity(item.product.id, Math.max(10, item.quantity - 10))}
+                                                className="px-2 py-1 text-gray-600 hover:bg-gray-100"
+                                            >-</button>
+                                            <input
+                                                type="number"
+                                                value={item.quantity}
+                                                onChange={(e) => updateQuantity(item.product.id, parseInt(e.target.value) || 0)}
+                                                className={`w-16 text-center border-none p-1 text-sm focus:ring-0 ${item.quantity % 10 !== 0 ? 'text-red-500 font-bold' : ''}`}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => updateQuantity(item.product.id, item.quantity + 10)}
+                                                className="px-2 py-1 text-gray-600 hover:bg-gray-100"
+                                            >+</button>
+                                        </div>
+                                        {item.quantity > item.product.stock && (
+                                            <span className="text-[10px] text-orange-500 mt-1 font-medium italic">Pesan melebihi stok (Tersedia: {item.product.stock})</span>
+                                        )}
+                                        {item.quantity % 10 !== 0 && (
+                                            <span className="text-[10px] text-red-500 mt-1 font-bold italic">Kelipatan 10</span>
+                                        )}
                                     </div>
                                     <button
                                         onClick={() => removeFromCart(item.product.id)}
-                                        className="text-red-500 hover:text-red-700"
+                                        className="text-red-500 hover:text-red-700 p-1"
                                     >
                                         <Trash2 className="h-5 w-5" />
                                     </button>
@@ -193,10 +196,14 @@ const Cart = () => {
 
                             <button
                                 type="submit"
-                                disabled={loading}
-                                className="w-full bg-primary-600 text-white py-3 rounded-lg font-bold shadow-sm hover:bg-primary-700 transition-colors disabled:opacity-75"
+                                disabled={loading || !isCartValid}
+                                className={`w-full py-3 rounded-lg font-bold shadow-sm transition-colors ${
+                                    isCartValid 
+                                        ? 'bg-primary-600 hover:bg-primary-700 text-white' 
+                                        : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                }`}
                             >
-                                {loading ? 'Memproses...' : 'Buat Pesanan Sekarang'}
+                                {loading ? 'Memproses...' : (isCartValid ? 'Buat Pesanan Sekarang' : 'Cek Kembali Pesanan')}
                             </button>
                         </form>
                     </div>

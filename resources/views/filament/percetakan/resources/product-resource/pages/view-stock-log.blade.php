@@ -6,12 +6,12 @@
         </a>
     </div>
 
-    <x-filament-panels::section>
+    <x-filament::section>
         <x-slot name="heading">Riwayat Stok: {{ $record->name }}</x-slot>
         <x-slot name="description">
             Stok saat ini: <strong>{{ $record->stock }}</strong> eksemplar
         </x-slot>
 
         {{ $this->table }}
-    </x-filament-panels::section>
+    </x-filament::section>
 </x-filament-panels::page>

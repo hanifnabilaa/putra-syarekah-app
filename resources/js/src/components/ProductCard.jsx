@@ -12,10 +12,6 @@ export const ProductCard = ({ product }) => {
             alert('Jumlah pesanan harus kelipatan 10 (10, 20, 30, dst).');
             return;
         }
-        if (quantity > product.stock) {
-            alert('Jumlah pesanan melebihi stok yang tersedia.');
-            return;
-        }
 
         addToCart(product, quantity);
         setAdded(true);
@@ -46,8 +42,8 @@ export const ProductCard = ({ product }) => {
                     </div>
                 )}
                 {product.stock <= 0 && (
-                    <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
-                        Stok Habis
+                    <div className="absolute top-2 right-2 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm">
+                        Pre-Order
                     </div>
                 )}
             </div>
@@ -72,29 +68,27 @@ export const ProductCard = ({ product }) => {
                                 className="w-20 text-center border-x-0 border-y-0 p-1 text-sm focus:ring-0"
                                 step="10"
                                 min="10"
-                                max={product.stock}
                             />
                             <button 
                                 type="button"
-                                onClick={() => setQuantity(Math.min(product.stock, quantity + 10))}
-                                disabled={quantity + 10 > product.stock}
-                                className="px-2 py-1 text-gray-600 hover:bg-gray-100 rounded-r-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                onClick={() => setQuantity(quantity + 10)}
+                                className="px-2 py-1 text-gray-600 hover:bg-gray-100 rounded-r-lg"
                             >+</button>
                         </div>
                     </div>
                     
                     <button 
                         onClick={handleAdd}
-                        disabled={product.stock <= 0 || added || quantity > product.stock || quantity % 10 !== 0}
+                        disabled={added || quantity % 10 !== 0}
                         className={`w-full py-2 rounded-lg font-medium text-sm transition-colors ${
                             added 
                                 ? 'bg-green-500 text-white'
-                                : (product.stock > 0 && quantity <= product.stock && quantity % 10 === 0)
+                                : (quantity % 10 === 0)
                                     ? 'bg-primary-600 hover:bg-primary-700 text-white' 
                                     : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                         }`}
                     >
-                        {added ? 'Ditambahkan ke Keranjang' : (quantity > product.stock ? 'Stok Tidak Cukup' : 'Tambah ke Keranjang')}
+                        {added ? 'Ditambahkan ke Keranjang' : 'Tambah ke Keranjang'}
                     </button>
                 </div>
             </div>
