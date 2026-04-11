@@ -16,10 +16,11 @@ class BillService
         float $amount,
         int $confirmedBy,
         ?string $notes = null,
-        ?string $paidAt = null
+        ?string $paidAt = null,
+        ?string $proofImage = null
     ): Payment {
-        return DB::transaction(function () use ($bill, $amount, $confirmedBy, $notes, $paidAt) {
-            return $bill->addPayment($amount, $confirmedBy, $notes, $paidAt);
+        return DB::transaction(function () use ($bill, $amount, $confirmedBy, $notes, $paidAt, $proofImage) {
+            return $bill->addPayment($amount, $confirmedBy, $notes, $paidAt, $proofImage);
         });
     }
 

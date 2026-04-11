@@ -13,9 +13,11 @@ class PaymentResource extends JsonResource
             'id'             => $this->id,
             'amount'         => (float) $this->amount,
             'confirmed_by'   => $this->confirmedBy?->name,
-            'confirmed_at'   => $this->confirmed_at?->format('d M Y H:i'),
-            'notes'          => $this->notes,
-            'created_at'     => $this->created_at->format('d M Y'),
+            'confirmed_at'     => $this->confirmed_at?->format('d M Y H:i'),
+            'notes'            => $this->notes,
+            'proof_image_url'  => $this->proof_image_url,
+            'payment_date'     => $this->payment_date?->format('d M Y') ?? $this->created_at->format('d M Y'),
+            'created_at'       => $this->created_at->format('d M Y'),
         ];
     }
 }

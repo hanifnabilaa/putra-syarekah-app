@@ -16,6 +16,7 @@ class Payment extends Model
         'payment_date',
         'confirmed_at',
         'notes',
+        'proof_image',
     ];
 
     protected $casts = [
@@ -23,6 +24,13 @@ class Payment extends Model
         'payment_date' => 'date',
         'confirmed_at' => 'datetime',
     ];
+
+    // ─── Accessors ──────────────────────────────────────────────────────────────
+
+    public function getProofImageUrlAttribute(): ?string
+    {
+        return $this->proof_image ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->proof_image) : null;
+    }
 
     // ─── Relations ───────────────────────────────────────────────────────────────
 

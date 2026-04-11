@@ -3,6 +3,7 @@ import { useBills } from '../hooks/useBills';
 import { StatusBadge } from '../components/StatusBadge';
 import { formatRupiah, formatDate } from '../utils/helpers';
 import { Link } from 'react-router-dom';
+import { FileText, Calendar, CheckCircle } from 'lucide-react';
 
 const Bills = () => {
     const { bills, loading, fetchBills } = useBills();
@@ -61,6 +62,47 @@ const Bills = () => {
                                         </div>
                                     </div>
                                 </div>
+
+                                {bill.payments && bill.payments.length > 0 && (
+                                    <div className="mt-5 border-t border-gray-100 pt-4">
+                                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Histori Pembayaran</h4>
+                                        <div className="space-y-3">
+                                            {bill.payments.map((payment) => (
+                                                <div key={payment.id} className="bg-gray-50 rounded-lg p-3 border border-gray-100/50">
+                                                    <div className="flex justify-between items-start">
+                                                        <div className="flex items-start space-x-2">
+                                                            <CheckCircle className="h-4 w-4 text-green-500 bg-white rounded-full mt-0.5" />
+                                                            <div>
+                                                                <p className="text-sm font-semibold text-gray-900">{formatRupiah(payment.amount)}</p>
+                                                                <div className="flex items-center text-xs text-gray-500 mt-1 space-x-2">
+                                                                    <span className="flex items-center"><Calendar className="h-3 w-3 mr-1" /> {payment.payment_date}</span>
+                                                                </div>
+                                                                {payment.notes && (
+                                                                    <p className="text-xs text-gray-600 mt-1.5 italic">"{payment.notes}"</p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right flex flex-col items-end shrink-0 pl-2">
+                                                            <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium mb-1.5 whitespace-nowrap">
+                                                                Admin: {payment.confirmed_by}
+                                                            </span>
+                                                            {payment.proof_image_url && (
+                                                                <a 
+                                                                    href={payment.proof_image_url} 
+                                                                    target="_blank" 
+                                                                    rel="noreferrer"
+                                                                    className="flex items-center text-xs text-primary-600 hover:text-primary-700 font-medium"
+                                                                >
+                                                                    <FileText className="h-3 w-3 mr-1" /> Lihat Bukti
+                                                                </a>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             <div className="bg-gray-50 px-5 py-3 border-t border-gray-200 mt-auto">
                                 <p className="text-xs text-gray-500 text-center">

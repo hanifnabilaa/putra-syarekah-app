@@ -31,13 +31,15 @@ class Bill extends Model
     /**
      * Tambah pembayaran dan update status bill + order.
      */
-    public function addPayment(float $amount, int $confirmedBy, ?string $notes = null, ?string $paidAt = null): Payment
+    public function addPayment(float $amount, int $confirmedBy, ?string $notes = null, ?string $paidAt = null, ?string $proofImage = null): Payment
     {
         $payment = $this->payments()->create([
             'amount'       => $amount,
             'confirmed_by' => $confirmedBy,
-            'confirmed_at' => $paidAt ?? now(),
+            'payment_date' => $paidAt ?? now()->toDateString(),
+            'confirmed_at' => now(),
             'notes'        => $notes,
+            'proof_image'  => $proofImage,
         ]);
 
         $this->recalculate();

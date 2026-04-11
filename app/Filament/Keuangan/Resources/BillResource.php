@@ -4,6 +4,7 @@ namespace App\Filament\Keuangan\Resources;
 
 use App\Enums\BillStatus;
 use App\Filament\Keuangan\Resources\BillResource\Pages;
+use App\Filament\Keuangan\Resources\BillResource\RelationManagers;
 use App\Models\Bill;
 use App\Services\BillService;
 use Filament\Forms;
@@ -12,6 +13,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -106,6 +108,12 @@ class BillResource extends Resource
                         Textarea::make('notes')
                             ->label('Keterangan (misal: Transfer BCA, Tunai)')
                             ->rows(2),
+                        FileUpload::make('proof_image')
+                            ->label('Bukti Transaksi (Opsional)')
+                            ->image()
+                            ->disk('public')
+                            ->directory('BuktiPembayaran')
+                            ->nullable(),
                     ])
                     ->action(function (Bill $record, array $data): void {
                         app(BillService::class)->addPayment(
@@ -114,6 +122,7 @@ class BillResource extends Resource
                             auth()->id(),
                             $data['notes'] ?? null,
                             $data['payment_date'],
+                            $data['proof_image'] ?? null,
                         );
                         Notification::make()->title('Pembayaran dikonfirmasi')->success()->send();
                     }),
@@ -124,7 +133,9 @@ class BillResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            RelationManagers\PaymentsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
