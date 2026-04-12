@@ -19,6 +19,7 @@ class Shipment extends Model
         'shipping_address',
         'shipping_date',
         'notes',
+        'proof_of_delivery',
     ];
 
     protected $casts = [

@@ -13,7 +13,13 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Schemas\Schema;
+use Filament\Infolists\Infolist;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\Section as InfolistSection;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\ImageEntry;
 
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -48,19 +54,39 @@ class ShipmentResource extends Resource
                 Select::make('method')
                     ->label('Metode')
                     ->options(['shipping' => 'Dikirim', 'pickup' => 'Ambil Sendiri'])
+                    ->reactive()
                     ->required(),
 
                 Textarea::make('shipping_address')
                     ->label('Alamat Pengiriman')
+                    ->hidden(fn (\Filament\Schemas\Components\Utilities\Get $get) => $get('method') === 'pickup')
                     ->rows(2),
 
                 DatePicker::make('shipping_date')
                     ->label('Tanggal Kirim'),
 
+                FileUpload::make('proof_of_delivery')
+                    ->label('Foto Bukti Pengiriman (Opsional)')
+                    ->image()
+                    ->directory('shipment-proofs')
+                    ->nullable(),
+
                 Textarea::make('notes')
                     ->label('Keterangan')
                     ->rows(2),
+
             ])->columns(2),
+
+            \Filament\Schemas\Components\Section::make('Detail Barang Dikirim')->schema([
+                \Filament\Forms\Components\Repeater::make('items')
+                    ->relationship('items')
+                    ->schema([
+                        \Filament\Forms\Components\TextInput::make('orderItem.product.name')
+                            ->label('Produk'),
+                        \Filament\Forms\Components\TextInput::make('quantity')
+                            ->label('Jumlah Dikirim'),
+                    ])->columns(2)
+            ])->hiddenOn(['create', 'edit']),
         ]);
     }
 
@@ -111,7 +137,17 @@ class ShipmentResource extends Resource
                     ->color('warning')
                     ->visible(fn (Shipment $record) => $record->status === ShipmentStatus::PENDING)
                     ->requiresConfirmation()
-                    ->action(function (Shipment $record): void {
+                    ->form([
+                        \Filament\Forms\Components\FileUpload::make('proof_of_delivery')
+                            ->label('Foto Bukti Pengiriman (Opsional)')
+                            ->image()
+                            ->directory('shipment-proofs')
+                            ->nullable(),
+                    ])
+                    ->action(function (Shipment $record, array $data): void {
+                        if (!empty($data['proof_of_delivery'])) {
+                            $record->update(['proof_of_delivery' => $data['proof_of_delivery']]);
+                        }
                         app(ShipmentService::class)->updateStatus($record, ShipmentStatus::SHIPPED);
                         Notification::make()->title('Status diperbarui: Dikirim')->success()->send();
                     }),
@@ -122,7 +158,17 @@ class ShipmentResource extends Resource
                     ->color('success')
                     ->visible(fn (Shipment $record) => $record->status === ShipmentStatus::SHIPPED)
                     ->requiresConfirmation()
-                    ->action(function (Shipment $record): void {
+                    ->form([
+                        \Filament\Forms\Components\FileUpload::make('proof_of_delivery')
+                            ->label('Foto Bukti Pengiriman (Opsional)')
+                            ->image()
+                            ->directory('shipment-proofs')
+                            ->nullable(),
+                    ])
+                    ->action(function (Shipment $record, array $data): void {
+                        if (!empty($data['proof_of_delivery'])) {
+                            $record->update(['proof_of_delivery' => $data['proof_of_delivery']]);
+                        }
                         app(ShipmentService::class)->updateStatus($record, ShipmentStatus::DELIVERED);
                         Notification::make()->title('Status diperbarui: Diterima')->success()->send();
                     }),

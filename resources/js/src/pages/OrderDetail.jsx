@@ -112,6 +112,26 @@ const OrderDetail = () => {
                                                                     Pengiriman via <span className="font-medium text-gray-900">{shipment.method_label}</span> <StatusBadge status={shipment.status} label={shipment.status_label} />
                                                                 </p>
                                                                 {shipment.notes && <p className="text-sm mt-1 text-gray-500 italic">Catatan: {shipment.notes}</p>}
+                                                                
+                                                                {shipment.items && shipment.items.length > 0 && (
+                                                                    <div className="mt-3 text-sm text-gray-600 bg-gray-50 p-3 rounded-md border border-gray-100">
+                                                                        <p className="font-semibold mb-1">Detail Barang Dikirim:</p>
+                                                                        <ul className="list-disc list-inside space-y-1">
+                                                                            {shipment.items.map(item => (
+                                                                                <li key={item.id}>{item.order_item?.product?.name} - {item.quantity} pcs</li>
+                                                                            ))}
+                                                                        </ul>
+                                                                    </div>
+                                                                )}
+
+                                                                {shipment.proof_of_delivery_url && (
+                                                                    <div className="mt-3">
+                                                                        <p className="font-semibold text-sm mb-2 text-gray-700">Foto Bukti Pengiriman:</p>
+                                                                        <a href={shipment.proof_of_delivery_url} target="_blank" rel="noopener noreferrer">
+                                                                            <img src={shipment.proof_of_delivery_url} alt="Bukti Pengiriman" className="w-32 h-32 object-cover rounded-md border border-gray-300 shadow-sm hover:opacity-90 transition-opacity" />
+                                                                        </a>
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                             <div className="whitespace-nowrap text-right text-sm text-gray-500">
                                                                 <span>{shipment.shipping_date ? formatDate(shipment.shipping_date) : '-'}</span>

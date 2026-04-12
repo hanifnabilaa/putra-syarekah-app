@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('payments', function (Blueprint $table) {
-            if (!Schema::hasColumn('payments', 'payment_date')) {
-                $table->date('payment_date')->nullable()->after('confirmed_by');
-            }
+        Schema::table('shipments', function (Blueprint $table) {
+            $table->string('proof_of_delivery')->nullable()->after('notes');
         });
     }
 
@@ -23,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('payments', function (Blueprint $table) {
-            $table->dropColumn('payment_date');
+        Schema::table('shipments', function (Blueprint $table) {
+            $table->dropColumn('proof_of_delivery');
         });
     }
 };

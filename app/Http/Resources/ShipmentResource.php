@@ -17,10 +17,11 @@ class ShipmentResource extends JsonResource
             'method'           => $this->method->value,
             'method_label'     => $this->method->label(),
             'shipping_address' => $this->shipping_address,
-            'shipping_date'    => $this->shipping_date?->format('Y-m-d'),
-            'notes'            => $this->notes,
-            'items'            => ShipmentItemResource::collection($this->whenLoaded('items')),
-            'created_at'       => $this->created_at->format('d M Y'),
+            'shipping_date'         => $this->shipping_date?->format('Y-m-d'),
+            'notes'                 => $this->notes,
+            'proof_of_delivery_url' => $this->proof_of_delivery ? asset('storage/' . $this->proof_of_delivery) : null,
+            'items'                 => ShipmentItemResource::collection($this->whenLoaded('items')),
+            'created_at'            => $this->created_at->format('d M Y'),
         ];
     }
 }
