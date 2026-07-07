@@ -6,4 +6,4 @@ use Illuminate\Support\Facades\Route;
 // Harus diletakkan terakhir agar tidak menimpa rute web/API lain.
 Route::get('/{any}', function () {
     return view('app');
-})->where('any', '^(?!api|percetakan|keuangan|livewire|build).*$');
+})->where('any', '^(?!api|percetakan|keuangan|sekretaris|gudang|daerah|atasan|livewire|build).*$');
