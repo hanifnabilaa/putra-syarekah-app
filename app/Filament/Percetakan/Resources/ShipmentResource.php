@@ -77,7 +77,7 @@ class ShipmentResource extends Resource
 
             ])->columns(2),
 
-            \Filament\Schemas\Components\Section::make('Detail Barang Dikirim')->schema([
+            Section::make('Detail Barang Dikirim')->schema([
                 \Filament\Forms\Components\Repeater::make('items')
                     ->relationship('items')
                     ->schema([

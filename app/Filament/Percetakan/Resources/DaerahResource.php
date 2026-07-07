@@ -6,7 +6,10 @@ use App\Enums\UserRole;
 use App\Filament\Percetakan\Resources\DaerahResource\Pages;
 use App\Models\Daerah;
 use App\Models\User;
-use Filament\Forms;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
 use Filament\Resources\Resource;
@@ -27,60 +30,60 @@ class DaerahResource extends Resource
     public static function form(Schema $form): Schema
     {
         return $form->schema([
-            \Filament\Schemas\Components\Section::make('Informasi Daerah')->schema([
-                \Filament\Schemas\Components\TextInput::make('name')
+            Section::make('Informasi Daerah')->schema([
+                TextInput::make('name')
                     ->label('Nama Daerah')
                     ->required()
                     ->maxLength(255),
 
-                \Filament\Schemas\Components\TextInput::make('pic_name')
+                TextInput::make('pic_name')
                     ->label('Nama Penanggung Jawab')
                     ->required()
                     ->maxLength(255),
 
-                \Filament\Schemas\Components\TextInput::make('pic_phone')
+                TextInput::make('pic_phone')
                     ->label('No HP Penanggung Jawab')
                     ->tel()
                     ->required()
                     ->maxLength(20),
 
-                \Filament\Schemas\Components\TextInput::make('phone')
+                TextInput::make('phone')
                     ->label('No Telepon Daerah')
                     ->tel()
                     ->maxLength(20),
 
-                \Filament\Schemas\Components\Textarea::make('address')
+                Textarea::make('address')
                     ->label('Alamat Default')
                     ->rows(2)
                     ->columnSpanFull(),
 
-                \Filament\Schemas\Components\Toggle::make('is_active')
+                Toggle::make('is_active')
                     ->label('Aktif')
                     ->default(true),
             ])->columns(2),
 
-            \Filament\Schemas\Components\Section::make('Akun Login')->schema([
-                \Filament\Schemas\Components\TextInput::make('user.name')
+            Section::make('Akun Login')->schema([
+                TextInput::make('user.name')
                     ->label('Nama Lengkap')
                     ->required()
                     ->maxLength(255)
                     ->hiddenOn('edit'),
 
-                \Filament\Schemas\Components\TextInput::make('user.username')
+                TextInput::make('user.username')
                     ->label('Username')
                     ->required()
                     ->unique(table: 'users', column: 'username', ignorable: fn ($record) => $record?->user)
                     ->maxLength(50)
                     ->hiddenOn('edit'),
 
-                \Filament\Schemas\Components\TextInput::make('user.email')
+                TextInput::make('user.email')
                     ->label('Email')
                     ->email()
                     ->unique(table: 'users', column: 'email', ignorable: fn ($record) => $record?->user)
                     ->maxLength(255)
                     ->hiddenOn('edit'),
 
-                \Filament\Schemas\Components\TextInput::make('user.password')
+                TextInput::make('user.password')
                     ->label('Password')
                     ->password()
                     ->required()
