@@ -14,6 +14,8 @@ class StockLog extends Model
     protected $fillable = [
         'product_id',
         'user_id',
+        'reference_type',
+        'reference_id',
         'type',
         'quantity',
         'notes',
@@ -33,5 +35,10 @@ class StockLog extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function reference()
+    {
+        return $this->morphTo();
     }
 }

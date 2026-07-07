@@ -4,16 +4,22 @@ namespace App\Enums;
 
 enum UserRole: string
 {
-    case ADMIN_PERCETAKAN = 'admin_percetakan';
-    case ADMIN_KEUANGAN = 'admin_keuangan';
+    case SEKRETARIS = 'sekretaris';
+    case PERCETAKAN = 'percetakan';
+    case GUDANG = 'gudang';
     case DAERAH = 'daerah';
+    case KEUANGAN = 'keuangan';
+    case ATASAN = 'atasan';
 
     public function label(): string
     {
         return match ($this) {
-            self::ADMIN_PERCETAKAN => 'Admin Percetakan',
-            self::ADMIN_KEUANGAN => 'Admin Keuangan',
+            self::SEKRETARIS => 'Sekretaris',
+            self::PERCETAKAN => 'Percetakan',
+            self::GUDANG => 'Gudang',
             self::DAERAH => 'Daerah',
+            self::KEUANGAN => 'Keuangan',
+            self::ATASAN => 'Atasan',
         };
     }
 }

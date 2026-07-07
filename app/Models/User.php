@@ -34,28 +34,47 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return match ($panel->getId()) {
-            'percetakan' => $this->role === UserRole::ADMIN_PERCETAKAN,
-            'keuangan'   => $this->role === UserRole::ADMIN_KEUANGAN,
-            'admin'      => in_array($this->role, [UserRole::ADMIN_PERCETAKAN, UserRole::ADMIN_KEUANGAN]),
+            'sekretaris' => $this->role === UserRole::SEKRETARIS,
+            'percetakan' => $this->role === UserRole::PERCETAKAN,
+            'gudang'     => $this->role === UserRole::GUDANG,
+            'daerah'     => $this->role === UserRole::DAERAH,
+            'keuangan'   => $this->role === UserRole::KEUANGAN,
+            'atasan'     => $this->role === UserRole::ATASAN,
+            'admin'      => in_array($this->role, [UserRole::SEKRETARIS, UserRole::PERCETAKAN, UserRole::GUDANG, UserRole::KEUANGAN, UserRole::ATASAN]),
             default      => false,
         };
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-    public function isPercetakan(): bool
+    public function isSekretaris(): bool
     {
-        return $this->role === UserRole::ADMIN_PERCETAKAN;
+        return $this->role === UserRole::SEKRETARIS;
     }
 
-    public function isKeuangan(): bool
+    public function isPercetakan(): bool
     {
-        return $this->role === UserRole::ADMIN_KEUANGAN;
+        return $this->role === UserRole::PERCETAKAN;
+    }
+
+    public function isGudang(): bool
+    {
+        return $this->role === UserRole::GUDANG;
     }
 
     public function isDaerah(): bool
     {
         return $this->role === UserRole::DAERAH;
+    }
+
+    public function isKeuangan(): bool
+    {
+        return $this->role === UserRole::KEUANGAN;
+    }
+
+    public function isAtasan(): bool
+    {
+        return $this->role === UserRole::ATASAN;
     }
 
     // ─── Relations ───────────────────────────────────────────────────────────────
