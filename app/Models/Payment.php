@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Validation\Rule;
 
 class Payment extends Model
 {
@@ -24,6 +25,19 @@ class Payment extends Model
         'payment_date' => 'date',
         'confirmed_at' => 'datetime',
     ];
+
+    // ─── Validation ─────────────────────────────────────────────────────────────
+
+    public static function validationRules(): array
+    {
+        return [
+            'amount'       => ['required', 'numeric', 'gt:0'],
+            'confirmed_by' => ['required', 'integer', 'exists:users,id'],
+            'payment_date' => ['required', 'date'],
+            'notes'        => ['nullable', 'string', 'max:1000'],
+            'proof_image'  => ['nullable', 'image', 'max:2048'],
+        ];
+    }
 
     // ─── Accessors ──────────────────────────────────────────────────────────────
 

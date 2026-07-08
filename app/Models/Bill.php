@@ -29,10 +29,35 @@ class Bill extends Model
     // ─── Business Logic ──────────────────────────────────────────────────────────
 
     /**
+     * Check if a payment amount can be added without exceeding the bill.
+     */
+    public function canAddPayment(float $amount): bool
+    {
+        return $amount > 0 && ($this->remaining_bill - $amount) >= -0.01; // Small tolerance for float precision
+    }
+
+    /**
+     * Get maximum amount that can be paid (to prevent overpayment).
+     */
+    public function getMaxPaymentAmount(): float
+    {
+        return max(0, $this->remaining_bill);
+    }
+
+    /**
      * Tambah pembayaran dan update status bill + order.
+     * Throws exception if payment would exceed bill amount.
      */
     public function addPayment(float $amount, int $confirmedBy, ?string $notes = null, ?string $paidAt = null, ?string $proofImage = null): Payment
     {
+        if (!$this->canAddPayment($amount)) {
+            throw new \InvalidArgumentException(
+                $amount <= 0
+                    ? 'Jumlah pembayaran harus lebih dari 0'
+                    : 'Jumlah pembayaran melebihi sisa tagihan'
+            );
+        }
+
         $payment = $this->payments()->create([
             'amount'       => $amount,
             'confirmed_by' => $confirmedBy,
@@ -49,6 +74,7 @@ class Bill extends Model
 
     /**
      * Recalculate totals and update status.
+     * Order is marked FINISHED only when fully paid AND all items are shipped.
      */
     public function recalculate(): void
     {
@@ -61,8 +87,11 @@ class Bill extends Model
             $this->status = BillStatus::PARTIALLY_PAID;
         } else {
             $this->status = BillStatus::PAID;
-            // Mark order as finished
-            $this->order()->update(['status' => OrderStatus::FINISHED->value]);
+            // Only mark order as finished if ALL items have been shipped
+            $allShipped = $this->order->items->every(fn($item) => $item->isFullyShipped());
+            if ($allShipped) {
+                $this->order()->update(['status' => OrderStatus::FINISHED->value]);
+            }
         }
 
         $this->save();

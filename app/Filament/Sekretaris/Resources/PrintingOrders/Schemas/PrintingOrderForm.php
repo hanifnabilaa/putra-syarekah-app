@@ -3,6 +3,7 @@
 namespace App\Filament\Sekretaris\Resources\PrintingOrders\Schemas;
 
 use App\Enums\PrintingOrderStatus;
+use App\Models\PrintingOrder;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
@@ -35,9 +36,22 @@ class PrintingOrderForm
                                 Hidden::make('sekretaris_id')
                                     ->default(fn () => auth()->id()),
                                 Select::make('status')
-                                    ->options(PrintingOrderStatus::class)
+                                    ->options(function (?PrintingOrder $record): array {
+                                        // If creating new record, only show DRAFT
+                                        if (!$record || !$record->exists) {
+                                            return [PrintingOrderStatus::DRAFT->value => PrintingOrderStatus::DRAFT->label()];
+                                        }
+                                        // For existing records, show only valid next transitions
+                                        return $record->getAvailableTransitions();
+                                    })
                                     ->default(PrintingOrderStatus::DRAFT->value)
-                                    ->required(),
+                                    ->required()
+                                    ->hint(function (?PrintingOrder $record): ?string {
+                                        if ($record && $record->exists && !empty($record->getAvailableTransitions())) {
+                                            return 'Status saat ini: ' . $record->status->label();
+                                        }
+                                        return null;
+                                    }),
                                 DatePicker::make('order_date')
                                     ->default(now())
                                     ->required(),

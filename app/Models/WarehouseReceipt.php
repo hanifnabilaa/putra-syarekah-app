@@ -41,6 +41,10 @@ class WarehouseReceipt extends Model
 
                 if (!$hasLogs) {
                     foreach ($receipt->items as $item) {
+                        // Increment actual stock in products table
+                        $item->product->increment('stock', $item->qty_received);
+
+                        // Create stock log entry
                         \App\Models\StockLog::create([
                             'product_id' => $item->product_id,
                             'user_id' => $receipt->gudang_id,
