@@ -5,7 +5,6 @@ namespace App\Filament\Percetakan\Resources;
 use App\Enums\OrderStatus;
 use App\Filament\Percetakan\Resources\OrderResource\Pages;
 use App\Models\Order;
-use App\Services\OrderService;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TextInput;
@@ -13,7 +12,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Repeater;
 
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -131,49 +129,6 @@ class OrderResource extends Resource
                     ->relationship('daerah', 'name'),
             ])
             ->actions([
-                \Filament\Actions\Action::make('approve')
-                    ->label('Setujui')
-                    ->icon('heroicon-m-check-circle')
-                    ->color('success')
-                    ->visible(fn (Order $record) => $record->status === OrderStatus::SUBMITTED)
-                    ->requiresConfirmation()
-                    ->action(function (Order $record): void {
-                        app(OrderService::class)->approveOrder($record);
-                        Notification::make()->title('Pesanan disetujui')->success()->send();
-                    }),
-
-                \Filament\Actions\Action::make('reject')
-                    ->label('Tolak')
-                    ->icon('heroicon-m-x-circle')
-                    ->color('danger')
-                    ->visible(fn (Order $record) => $record->status === OrderStatus::SUBMITTED)
-                    ->form([
-                        Textarea::make('rejection_reason')
-                            ->label('Alasan Penolakan')
-                            ->required()
-                            ->rows(3),
-                    ])
-                    ->action(function (Order $record, array $data): void {
-                        app(OrderService::class)->rejectOrder($record, $data['rejection_reason']);
-                        Notification::make()->title('Pesanan ditolak')->warning()->send();
-                    }),
-
-                \Filament\Actions\Action::make('cancel')
-                    ->label('Batalkan')
-                    ->icon('heroicon-m-trash')
-                    ->color('danger')
-                    ->visible(fn (Order $record) => $record->status === OrderStatus::APPROVED)
-                    ->requiresConfirmation()
-                    ->modalHeading('Batalkan Pesanan?')
-                    ->modalDescription('Pesanan yang sudah disetujui akan dibatalkan.')
-                    ->action(function (Order $record): void {
-                        app(OrderService::class)->cancelOrder($record);
-                        Notification::make()->title('Pesanan dibatalkan')->warning()->send();
-                    }),
-
-                \Filament\Actions\EditAction::make()
-                    ->visible(fn (Order $record) => $record->status === OrderStatus::APPROVED),
-
                 \Filament\Actions\ViewAction::make(),
             ]);
     }

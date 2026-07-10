@@ -4,12 +4,14 @@ namespace App\Models;
 
 use App\Enums\OrderStatus;
 use App\Enums\ShipmentMethod;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     protected $fillable = [
         'daerah_id',
@@ -45,14 +47,8 @@ class Order extends Model
 
     public static function generateOrderCode(): string
     {
-        $prefix = 'ORD-' . date('Ymd') . '-';
-        $last   = self::where('order_code', 'like', $prefix . '%')
-            ->orderByDesc('id')
-            ->value('order_code');
-
-        $seq = $last ? ((int) substr($last, -4)) + 1 : 1;
-
-        return $prefix . str_pad($seq, 4, '0', STR_PAD_LEFT);
+        $uuid = Str::upper(Str::uuid()->toString());
+        return 'ORD-' . $uuid;
     }
 
     public function recalculateTotal(): void

@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('bill_id')->constrained('bills')->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->uuid('bill_id');
+            $table->foreign('bill_id')->references('id')->on('bills')->cascadeOnDelete();
             $table->decimal('amount', 12, 2);
             $table->foreignId('confirmed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->date('payment_date')->nullable();

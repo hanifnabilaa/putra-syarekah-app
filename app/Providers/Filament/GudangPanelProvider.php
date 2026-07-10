@@ -26,6 +26,7 @@ class GudangPanelProvider extends PanelProvider
         return $panel
             ->id('gudang')
             ->path('gudang')
+            ->brandName('Gudang / Warehouse')
             ->login()
             ->colors([
                 'primary' => Color::Amber,

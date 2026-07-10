@@ -22,7 +22,8 @@ class PrintingOrder extends Model
         parent::boot();
 
         static::updating(function (self $order) {
-            $originalStatus = PrintingOrderStatus::from($order->getOriginal('status'));
+            // Use getRawOriginal to get the string value, not the enum object
+            $originalStatus = PrintingOrderStatus::from($order->getRawOriginal('status'));
             $newStatus = $order->status;
 
             // Skip validation if status hasn't changed

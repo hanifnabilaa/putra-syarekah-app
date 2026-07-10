@@ -26,6 +26,7 @@ class DaerahPanelProvider extends PanelProvider
         return $panel
             ->id('daerah')
             ->path('daerah')
+            ->brandName('Daerah')
             ->login()
             ->colors([
                 'primary' => Color::Amber,

@@ -26,6 +26,7 @@ class SekretarisPanelProvider extends PanelProvider
         return $panel
             ->id('sekretaris')
             ->path('sekretaris')
+            ->brandName('Sekretaris / Secretary')
             ->login()
             ->colors([
                 'primary' => Color::Amber,

@@ -13,8 +13,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('bills', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->uuid('order_id');
+            $table->foreign('order_id')->references('id')->on('orders')->cascadeOnDelete();
             $table->decimal('total_bill', 12, 2);
             $table->decimal('total_paid', 12, 2)->default(0);
             $table->decimal('remaining_bill', 12, 2);

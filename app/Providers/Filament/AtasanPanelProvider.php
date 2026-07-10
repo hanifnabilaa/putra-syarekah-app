@@ -23,6 +23,7 @@ class AtasanPanelProvider extends PanelProvider
         return $panel
             ->id('atasan')
             ->path('atasan')
+            ->brandName('Atasan / Executive')
             ->login()
             ->colors([
                 'primary' => Color::Amber,

@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('orders', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->foreignId('daerah_id')->constrained('daerahs')->cascadeOnDelete();
             $table->string('order_code')->unique();
             $table->string('status')->default(OrderStatus::DRAFT->value);
