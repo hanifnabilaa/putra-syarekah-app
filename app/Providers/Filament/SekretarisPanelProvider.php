@@ -2,6 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Sekretaris\Widgets\PendingOrdersByProductTable;
+use App\Filament\Sekretaris\Widgets\ProductStockTable;
+use App\Filament\Sekretaris\Widgets\SecretaryOverviewWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -39,7 +42,9 @@ class SekretarisPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Sekretaris/Widgets'), for: 'App\Filament\Sekretaris\Widgets')
             ->widgets([
                 AccountWidget::class,
-                FilamentInfoWidget::class,
+                SecretaryOverviewWidget::class,
+                PendingOrdersByProductTable::class,
+                ProductStockTable::class,
             ])
             ->middleware([
                 EncryptCookies::class,

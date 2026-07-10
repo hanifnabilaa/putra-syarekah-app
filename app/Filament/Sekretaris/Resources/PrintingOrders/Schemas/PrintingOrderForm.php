@@ -4,8 +4,10 @@ namespace App\Filament\Sekretaris\Resources\PrintingOrders\Schemas;
 
 use App\Enums\PrintingOrderStatus;
 use App\Models\PrintingOrder;
+use App\Models\Product;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -61,7 +63,21 @@ class PrintingOrderForm
                             ])
                             ->columns(2),
 
+                        // Product Summary Section - shows overview of all products
+                        Section::make('Informasi Produk & Stok')
+                            ->description('Ringkasan stok gudang dan pesanan daerah yang pending')
+                            ->schema([
+                                Placeholder::make('product_summary')
+                                    ->label('Ringkasan')
+                                    ->content(function (): \Illuminate\View\View {
+                                        return view('components.product-summary-form');
+                                    })
+                                    ->columnSpanFull(),
+                            ])
+                            ->collapsible(),
+
                         Section::make('Items')
+                            ->description('Tambahkan item pesanan percetakan')
                             ->schema([
                                 Repeater::make('items')
                                     ->relationship()
@@ -69,7 +85,34 @@ class PrintingOrderForm
                                         Select::make('product_id')
                                             ->relationship('product', 'name')
                                             ->required()
-                                            ->searchable(),
+                                            ->searchable()
+                                            ->preload()
+                                            ->live()
+                                            ->afterStateUpdated(function ($state, callable $set) {
+                                                // Reset qty when product changes
+                                                $set('qty', 1);
+                                            })
+                                            ->hint(function ($state) {
+                                                if ($state) {
+                                                    $product = Product::find($state);
+                                                    if ($product) {
+                                                        $pending = self::getPendingForProduct($product->id);
+                                                        $suggested = max(0, $pending - $product->stock);
+                                                        $stockColor = $product->stock < 50 ? 'danger' : 'success';
+                                                        $pendingColor = $pending > 0 ? 'warning' : 'gray';
+
+                                                        return new \Filament\Support\RawHtml(
+                                                            "<span class='text-xs'>" .
+                                                            "<span class='text-gray-500'>Stok:</span> <span class='text-{$stockColor}'>{$product->stock}</span> | " .
+                                                            "<span class='text-gray-500'>Pending:</span> <span class='text-{$pendingColor}'>{$pending}</span> | " .
+                                                            "<span class='text-gray-500'>Suggested:</span> " .
+                                                            ($suggested > 0 ? "<span class='text-danger font-bold'>{$suggested}</span>" : "<span class='text-success'>OK</span>") .
+                                                            "</span>"
+                                                        );
+                                                    }
+                                                }
+                                                return null;
+                                            }),
                                         TextInput::make('qty')
                                             ->numeric()
                                             ->required()
@@ -77,9 +120,22 @@ class PrintingOrderForm
                                     ])
                                     ->columns(2)
                                     ->defaultItems(1)
+                                    ->addActionLabel('Tambah Item')
                             ]),
                     ])
                     ->columnSpanFull()
             ]);
+    }
+
+    private static function getPendingForProduct(int $productId): int
+    {
+        return \App\Models\OrderItem::where('product_id', $productId)
+            ->whereIn('order_id', function ($query) {
+                $query->select('id')
+                    ->from('orders')
+                    ->where('status', \App\Enums\OrderStatus::APPROVED->value);
+            })
+            ->selectRaw('SUM(quantity - COALESCE(shipped_quantity, 0)) as pending')
+            ->value('pending') ?? 0;
     }
 }
