@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->nullableMorphs('reference');
+            $table->nullableUuidMorphs('reference');
             $table->enum('type', ['in', 'out'])->default('in');
             $table->integer('quantity');
             $table->text('notes')->nullable();

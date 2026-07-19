@@ -33,18 +33,24 @@ class SecretaryOverviewWidget extends StatsOverviewWidget
         // Products with low stock (less than 50)
         $lowStockProducts = Product::active()->where('stock', '<', 50)->count();
 
+        $processingItemsCount = \App\Models\PrintingOrderItem::whereIn('printing_order_id', function ($query) {
+            $query->select('id')
+                ->from('printing_orders')
+                ->where('status', '!=', \App\Enums\PrintingOrderStatus::SELESAI->value);
+        })->sum('qty');
+
         return [
             Stat::make('Pesanan Pending', $pendingOrdersCount)
                 ->description('Order daerah yang menunggu fulfillment')
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('warning'),
-            Stat::make('Item Pending', (int) $pendingItemsCount)
+            Stat::make('Kebutuhan Daerah', (int) $pendingItemsCount)
                 ->description('Total unit yang belum terpenuhi')
                 ->descriptionIcon('heroicon-m-queue-list')
                 ->color('warning'),
-            Stat::make('Total Produk', $totalProducts)
-                ->description('Produk aktif di katalog')
-                ->descriptionIcon('heroicon-m-archive-box')
+            Stat::make('Item Sedang Diproses', (int) $processingItemsCount)
+                ->description('Produk sedang dicetak di percetakan')
+                ->descriptionIcon('heroicon-m-cog-8-tooth')
                 ->color('info'),
             Stat::make('Stok Rendah', $lowStockProducts)
                 ->description('Produk dengan stok < 50 unit')

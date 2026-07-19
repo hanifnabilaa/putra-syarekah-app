@@ -57,6 +57,13 @@ class ShipmentResource extends Resource
                     ->reactive()
                     ->required(),
 
+                Select::make('gudang_id')
+                    ->label('Pilih Gudang Tujuan')
+                    ->options(\App\Models\User::where('role', \App\Enums\UserRole::GUDANG)->pluck('name', 'id'))
+                    ->visible(fn (\Filament\Schemas\Components\Utilities\Get $get) => $get('method') === 'pickup')
+                    ->required(fn (\Filament\Schemas\Components\Utilities\Get $get) => $get('method') === 'pickup')
+                    ->dehydrated(false),
+
                 Textarea::make('shipping_address')
                     ->label('Alamat Pengiriman')
                     ->hidden(fn (\Filament\Schemas\Components\Utilities\Get $get) => $get('method') === 'pickup')

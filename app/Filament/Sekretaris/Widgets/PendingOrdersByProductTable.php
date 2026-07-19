@@ -28,7 +28,8 @@ class PendingOrdersByProductTable extends TableWidget
                     ->selectRaw('products.*,
                         COALESCE(order_items.total_ordered, 0) as total_ordered,
                         COALESCE(order_items.total_shipped, 0) as total_shipped,
-                        COALESCE(order_items.total_ordered, 0) - COALESCE(order_items.total_shipped, 0) as pending_quantity')
+                        COALESCE(order_items.total_ordered, 0) - COALESCE(order_items.total_shipped, 0) as pending_quantity,
+                        COALESCE(po_items.total_in_process, 0) as total_in_process')
                     ->leftJoinSub(
                         OrderItem::query()
                             ->select('product_id')
@@ -44,7 +45,22 @@ class PendingOrdersByProductTable extends TableWidget
                         '=',
                         'order_items.product_id'
                     )
-                    ->havingRaw('(COALESCE(total_ordered, 0) - COALESCE(total_shipped, 0)) > 0')
+                    ->leftJoinSub(
+                        \App\Models\PrintingOrderItem::query()
+                            ->select('product_id')
+                            ->selectRaw('SUM(qty) as total_in_process')
+                            ->whereIn('printing_order_id', function ($query) {
+                                $query->select('id')
+                                    ->from('printing_orders')
+                                    ->where('status', '!=', \App\Enums\PrintingOrderStatus::SELESAI->value);
+                            })
+                            ->groupBy('product_id'),
+                        'po_items',
+                        'products.id',
+                        '=',
+                        'po_items.product_id'
+                    )
+                    ->havingRaw('(COALESCE(total_ordered, 0) - COALESCE(total_shipped, 0)) > 0 OR COALESCE(total_in_process, 0) > 0')
                     ->orderByRaw('(COALESCE(total_ordered, 0) - COALESCE(total_shipped, 0)) DESC')
             )
             ->columns([
@@ -57,27 +73,24 @@ class PendingOrdersByProductTable extends TableWidget
                     ->numeric()
                     ->sortable()
                     ->color(fn (int $state): string => $state < 50 ? 'danger' : ($state < 100 ? 'warning' : 'success')),
-                TextColumn::make('total_ordered')
-                    ->label('Diminta Daerah')
-                    ->numeric()
-                    ->sortable()
-                    ->color('info'),
-                TextColumn::make('total_shipped')
-                    ->label('Sudah Dikirim')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('pending_quantity')
-                    ->label('Belum Terpenuhi')
+                    ->label('Kebutuhan Daerah')
                     ->numeric()
                     ->sortable()
                     ->color('warning')
                     ->weight('bold'),
+                TextColumn::make('total_in_process')
+                    ->label('Sedang Proses PO')
+                    ->numeric()
+                    ->sortable()
+                    ->color('info')
+                    ->weight('bold'),
                 TextColumn::make('suggested_order')
-                    ->label('Suggested PO')
+                    ->label('Kekurangan (Perlu PO)')
                     ->numeric()
                     ->getStateUsing(function ($record): int {
-                        // Suggest order: pending quantity minus current stock, minimum 0
-                        return max(0, ($record->pending_quantity ?? 0) - ($record->stock ?? 0));
+                        // Net pending = needed by daerah - current stock - already ordered to printing (in process)
+                        return max(0, ($record->pending_quantity ?? 0) - ($record->stock ?? 0) - ($record->total_in_process ?? 0));
                     })
                     ->color(fn (int $state): string => $state > 0 ? 'danger' : 'success'),
             ])

@@ -111,7 +111,15 @@ class CreateShipment extends Page implements HasForms
                                         'shipping' => 'Dikirim ke Alamat',
                                         'pickup'   => 'Ambil Sendiri',
                                     ])
+                                    ->reactive()
                                     ->required(),
+
+                                Select::make('gudang_id')
+                                    ->label('Pilih Gudang Tujuan')
+                                    ->options(\App\Models\User::where('role', \App\Enums\UserRole::GUDANG)->pluck('name', 'id'))
+                                    ->visible(fn (Get $get) => $get('method') === 'pickup')
+                                    ->required(fn (Get $get) => $get('method') === 'pickup')
+                                    ->dehydrated(false),
 
                                 DatePicker::make('shipping_date')
                                     ->label('Tanggal Pengiriman')
@@ -119,6 +127,7 @@ class CreateShipment extends Page implements HasForms
 
                                 Textarea::make('shipping_address')
                                     ->label('Alamat Pengiriman')
+                                    ->visible(fn (Get $get) => $get('method') !== 'pickup')
                                     ->rows(2)
                                     ->columnSpanFull(),
 
@@ -156,12 +165,18 @@ class CreateShipment extends Page implements HasForms
 
         $order = Order::findOrFail($formData['order_id']);
 
+        $shippingAddress = $formData['shipping_address'] ?? null;
+        if ($formData['method'] === 'pickup' && !empty($formData['gudang_id'])) {
+            $gudang = \App\Models\User::find($formData['gudang_id']);
+            $shippingAddress = 'Diambil di Gudang: ' . ($gudang->name ?? 'Unknown');
+        }
+
         app(ShipmentService::class)->createShipment(
             $order,
             $items,
             [
                 'method'           => $formData['method'],
-                'shipping_address' => $formData['shipping_address'] ?? null,
+                'shipping_address' => $shippingAddress,
                 'shipping_date'    => $formData['shipping_date'],
                 'notes'            => $formData['notes'] ?? null,
             ]

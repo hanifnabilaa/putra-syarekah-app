@@ -39,6 +39,24 @@ class ShipmentObserver
                     'notes'         => "Pengiriman #{$shipment->id} — Pesanan {$shipment->order->order_code}",
                 ]);
             }
+
+            // Check if the whole order is fully shipped
+            $order = $shipment->order;
+            $isFullyShipped = true;
+            
+            // Refresh order items to get the latest shipped_quantity
+            $order->load('items');
+            
+            foreach ($order->items as $item) {
+                if ($item->shipped_quantity < $item->quantity) {
+                    $isFullyShipped = false;
+                    break;
+                }
+            }
+
+            if ($isFullyShipped && $order->status !== \App\Enums\OrderStatus::FINISHED) {
+                $order->update(['status' => \App\Enums\OrderStatus::FINISHED]);
+            }
         }
     }
 }
