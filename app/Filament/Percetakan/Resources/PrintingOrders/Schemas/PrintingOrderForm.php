@@ -30,7 +30,16 @@ class PrintingOrderForm
                                     ->disabled()
                                     ->label('Order Code'),
                                 Select::make('status')
-                                    ->options(PrintingOrderStatus::class)
+                                    ->options(function (?\App\Models\PrintingOrder $record): array {
+                                        if (!$record || !$record->exists) {
+                                            return [\App\Enums\PrintingOrderStatus::DRAFT->value => \App\Enums\PrintingOrderStatus::DRAFT->label()];
+                                        }
+                                        $options = [$record->status->value => $record->status->label()];
+                                        foreach ($record->getAvailableTransitions() as $value => $label) {
+                                            $options[$value] = $label;
+                                        }
+                                        return $options;
+                                    })
                                     ->required(),
                                 DatePicker::make('order_date')
                                     ->disabled(),

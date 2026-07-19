@@ -30,7 +30,8 @@ class OrderResource extends Resource
                     \Filament\Forms\Components\TextInput::make('order_code')
                         ->label('Kode Pesanan')
                         ->disabled(),
-                    \Filament\Forms\Components\TextInput::make('daerah.name')
+                    \Filament\Forms\Components\Select::make('daerah_id')
+                        ->relationship('daerah', 'name')
                         ->label('Daerah')
                         ->disabled(),
                     \Filament\Forms\Components\Select::make('shipping_method')
@@ -56,7 +57,8 @@ class OrderResource extends Resource
                     \Filament\Forms\Components\Repeater::make('items')
                         ->relationship()
                         ->schema([
-                            \Filament\Forms\Components\TextInput::make('product.name')
+                            \Filament\Forms\Components\Select::make('product_id')
+                                ->relationship('product', 'name')
                                 ->label('Produk')
                                 ->disabled(),
                             \Filament\Forms\Components\TextInput::make('quantity')

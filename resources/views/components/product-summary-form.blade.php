@@ -1,4 +1,4 @@
-<div class="space-y-4">
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
     @php
         $products = \App\Models\Product::active()
             ->withSum([
@@ -28,100 +28,86 @@
         $totalKekurangan = max(0, $totalPending - $totalStock);
     @endphp
 
-    @if($products->count() > 0)
-        {{-- Summary Cards --}}
-        <div class="grid grid-cols-3 gap-3">
-            <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-center">
-                <div class="text-xs text-blue-600 font-medium">Total Stok Gudang</div>
-                <div class="text-xl font-bold text-blue-700">{{ number_format($totalStock) }}</div>
-                <div class="text-xs text-blue-500">unit tersedia</div>
-            </div>
-            <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-center">
-                <div class="text-xs text-amber-600 font-medium">Total Pending Order</div>
-                <div class="text-xl font-bold text-amber-700">{{ number_format($totalPending) }}</div>
-                <div class="text-xs text-amber-500">diminta daerah</div>
-            </div>
-            <div class="p-3 {{ $totalKekurangan > 0 ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200' }} rounded-lg text-center">
-                <div class="text-xs {{ $totalKekurangan > 0 ? 'text-red-600' : 'text-green-600' }} font-medium">Kekurangan</div>
-                <div class="text-xl font-bold {{ $totalKekurangan > 0 ? 'text-red-700' : 'text-green-700' }}">
+    {{-- Summary Stats --}}
+    <div style="display: flex; gap: 1rem; width: 100%;">
+        <div style="flex: 1;">
+            <x-filament::fieldset>
+                <x-slot name="label">Stok Gudang</x-slot>
+                <div style="font-size: 1.5rem; font-weight: bold; text-align: center;">
+                    {{ number_format($totalStock) }}
+                </div>
+            </x-filament::fieldset>
+        </div>
+        <div style="flex: 1;">
+            <x-filament::fieldset>
+                <x-slot name="label">Pending Order</x-slot>
+                <div style="font-size: 1.5rem; font-weight: bold; text-align: center; color: rgba(var(--warning-500), 1);">
+                    {{ number_format($totalPending) }}
+                </div>
+            </x-filament::fieldset>
+        </div>
+        <div style="flex: 1;">
+            <x-filament::fieldset>
+                <x-slot name="label">Total Kekurangan</x-slot>
+                <div style="font-size: 1.5rem; font-weight: bold; text-align: center; color: rgba(var(--{{ $totalKekurangan > 0 ? 'danger' : 'success' }}-500), 1);">
                     {{ number_format($totalKekurangan) }}
                 </div>
-                <div class="text-xs {{ $totalKekurangan > 0 ? 'text-red-500' : 'text-green-500' }}">
-                    {{ $totalKekurangan > 0 ? 'unit perlu dipesan' : 'stok aman' }}
-                </div>
+            </x-filament::fieldset>
+        </div>
+    </div>
+
+    {{-- Product List --}}
+    @if($products->count() > 0)
+        <div>
+            <div style="font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; opacity: 0.8;">Detail per Produk</div>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                @foreach($products as $p)
+                    @php
+                        $pending = max(0, ($p->order_items_sum_quantity ?? 0) - ($p->order_items_sum_shipped_quantity ?? 0));
+                        $kekurangan = max(0, $pending - $p->stock);
+
+                        if ($kekurangan > 0) {
+                            $statusLabel = '+' . number_format($kekurangan) . ' perlu dipesan';
+                            $statusColor = 'danger';
+                        } elseif ($p->stock < 20) {
+                            $statusLabel = 'Stok Kritis';
+                            $statusColor = 'danger';
+                        } elseif ($p->stock < 50) {
+                            $statusLabel = 'Stok Rendah';
+                            $statusColor = 'warning';
+                        } else {
+                            $statusLabel = 'Stok Aman';
+                            $statusColor = 'success';
+                        }
+                    @endphp
+                    <x-filament::fieldset style="padding: 0.75rem 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; flex-direction: column;">
+                                <div style="font-weight: 600; font-size: 0.875rem;">{{ $p->name }}</div>
+                                <div style="font-size: 0.75rem; margin-top: 0.1rem;">
+                                    <span style="opacity: 0.7;">Stok Gudang:</span> 
+                                    <span style="{{ $p->stock < 50 ? 'color: rgba(var(--danger-500), 1); font-weight: bold;' : 'font-weight: 500;' }}">{{ number_format($p->stock) }}</span>
+                                    
+                                    @if($pending > 0)
+                                        <span style="opacity: 0.4; margin: 0 0.25rem;">|</span>
+                                        <span style="opacity: 0.7;">Pesanan Daerah:</span> 
+                                        <span style="color: rgba(var(--warning-500), 1); font-weight: bold;">{{ number_format($pending) }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div>
+                                <x-filament::badge :color="$statusColor">
+                                    {{ $statusLabel }}
+                                </x-filament::badge>
+                            </div>
+                        </div>
+                    </x-filament::fieldset>
+                @endforeach
             </div>
         </div>
-
-        {{-- Product Detail Table --}}
-        <div class="overflow-hidden rounded-lg border border-gray-200">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produk</th>
-                        <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Stok</th>
-                        <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Diminta</th>
-                        <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Pending</th>
-                        <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-100">
-                    @foreach($products as $p)
-                        @php
-                            $pending = max(0, ($p->order_items_sum_quantity ?? 0) - ($p->order_items_sum_shipped_quantity ?? 0));
-                            $kekurangan = max(0, $pending - $p->stock);
-
-                            if ($p->stock < 20) {
-                                $status = 'Kritis';
-                                $statusColor = 'danger';
-                            } elseif ($p->stock < 50) {
-                                $status = 'Rendah';
-                                $statusColor = 'warning';
-                            } elseif ($kekurangan > 0) {
-                                $status = 'Perlu PO';
-                                $statusColor = 'warning';
-                            } else {
-                                $status = 'Aman';
-                                $statusColor = 'success';
-                            }
-                        @endphp
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-3 py-2 font-medium text-gray-900">{{ $p->name }}</td>
-                            <td class="px-3 py-2 text-right {{ $p->stock < 50 ? 'text-danger font-semibold' : 'text-gray-700' }}">
-                                {{ number_format($p->stock) }}
-                            </td>
-                            <td class="px-3 py-2 text-right text-blue-600">
-                                {{ number_format($p->order_items_sum_quantity ?? 0) }}
-                            </td>
-                            <td class="px-3 py-2 text-right text-amber-600 font-medium">
-                                {{ number_format($pending) }}
-                            </td>
-                            <td class="px-3 py-2 text-right">
-                                @if($status === 'Kritis')
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                                        Kritis ({{ number_format($kekurangan) }})
-                                    </span>
-                                @elseif($status === 'Rendah')
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                                        Rendah
-                                    </span>
-                                @elseif($status === 'Perlu PO')
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">
-                                        +{{ number_format($kekurangan) }} perlu
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                        Aman ✓
-                                    </span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
     @else
-        <div class="text-center py-8 text-gray-500">
-            <p class="text-sm italic">Tidak ada produk aktif di katalog.</p>
+        <div style="text-align: center; padding: 1.5rem; font-size: 0.875rem; opacity: 0.6;">
+            Tidak ada data produk.
         </div>
     @endif
 </div>

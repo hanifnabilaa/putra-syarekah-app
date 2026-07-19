@@ -43,13 +43,17 @@ class PrintingOrderForm
                                         if (!$record || !$record->exists) {
                                             return [PrintingOrderStatus::DRAFT->value => PrintingOrderStatus::DRAFT->label()];
                                         }
-                                        // For existing records, show only valid next transitions
-                                        return $record->getAvailableTransitions();
+                                        // For existing records, include current status and valid next transitions
+                                        $options = [$record->status->value => $record->status->label()];
+                                        foreach ($record->getAvailableTransitions() as $value => $label) {
+                                            $options[$value] = $label;
+                                        }
+                                        return $options;
                                     })
                                     ->default(PrintingOrderStatus::DRAFT->value)
                                     ->required()
                                     ->hint(function (?PrintingOrder $record): ?string {
-                                        if ($record && $record->exists && !empty($record->getAvailableTransitions())) {
+                                        if ($record && $record->exists) {
                                             return 'Status saat ini: ' . $record->status->label();
                                         }
                                         return null;
@@ -64,17 +68,19 @@ class PrintingOrderForm
                             ->columns(2),
 
                         // Product Summary Section - shows overview of all products
-                        Section::make('Informasi Produk & Stok')
-                            ->description('Ringkasan stok gudang dan pesanan daerah yang pending')
+                        Section::make('Info Stok & Order')
+                            ->description('Lihat stok gudang dan pesanan pending sebelum membuat PO')
+                            ->headerActions([
+                                // Placeholder for potential expand/collapse toggle
+                            ])
                             ->schema([
                                 Placeholder::make('product_summary')
-                                    ->label('Ringkasan')
                                     ->content(function (): \Illuminate\View\View {
                                         return view('components.product-summary-form');
                                     })
                                     ->columnSpanFull(),
                             ])
-                            ->collapsible(),
+                            ->collapsed(false),
 
                         Section::make('Items')
                             ->description('Tambahkan item pesanan percetakan')
@@ -98,20 +104,32 @@ class PrintingOrderForm
                                                     if ($product) {
                                                         $pending = self::getPendingForProduct($product->id);
                                                         $suggested = max(0, $pending - $product->stock);
-                                                        $stockColor = $product->stock < 50 ? 'danger' : 'success';
-                                                        $pendingColor = $pending > 0 ? 'warning' : 'gray';
-
-                                                        return new \Filament\Support\RawHtml(
-                                                            "<span class='text-xs'>" .
-                                                            "<span class='text-gray-500'>Stok:</span> <span class='text-{$stockColor}'>{$product->stock}</span> | " .
-                                                            "<span class='text-gray-500'>Pending:</span> <span class='text-{$pendingColor}'>{$pending}</span> | " .
-                                                            "<span class='text-gray-500'>Suggested:</span> " .
-                                                            ($suggested > 0 ? "<span class='text-danger font-bold'>{$suggested}</span>" : "<span class='text-success'>OK</span>") .
-                                                            "</span>"
-                                                        );
+                                                        
+                                                        $text = "Stok Gudang: {$product->stock} | Pesanan Pending: {$pending}";
+                                                        if ($suggested > 0) {
+                                                            $text .= " | PERLU DIPESAN: {$suggested}";
+                                                        } else {
+                                                            $text .= " | (Aman)";
+                                                        }
+                                                        
+                                                        return $text;
                                                     }
                                                 }
                                                 return null;
+                                            })
+                                            ->hintColor(function ($state) {
+                                                if ($state) {
+                                                    $product = Product::find($state);
+                                                    if ($product) {
+                                                        $pending = self::getPendingForProduct($product->id);
+                                                        $suggested = max(0, $pending - $product->stock);
+                                                        
+                                                        if ($suggested > 0) return 'danger';
+                                                        if ($product->stock < 50) return 'warning';
+                                                        return 'success';
+                                                    }
+                                                }
+                                                return 'gray';
                                             }),
                                         TextInput::make('qty')
                                             ->numeric()
