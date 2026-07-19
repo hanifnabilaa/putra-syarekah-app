@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Percetakan\Resources\ProductResource\Pages;
+namespace App\Filament\Gudang\Resources\ProductResource\Pages;
 
-use App\Filament\Percetakan\Resources\ProductResource;
+use App\Filament\Gudang\Resources\ProductResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
@@ -13,7 +13,7 @@ class ListProducts extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            // No create action for gudang
         ];
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Percetakan\Resources\ProductResource\Pages;
+namespace App\Filament\Sekretaris\Resources\ProductResource\Pages;
 
-use App\Filament\Percetakan\Resources\ProductResource;
+use App\Filament\Sekretaris\Resources\ProductResource;
 use App\Models\Product;
 use Filament\Resources\Pages\Page;
 use Filament\Tables\Columns\TextColumn;
@@ -26,7 +26,7 @@ class ViewStockLog extends Page implements HasTable
 
     public function getView(): string
     {
-        return 'filament.percetakan.resources.product-resource.pages.view-stock-log';
+        return 'filament.sekretaris.resources.product-resource.pages.view-stock-log';
     }
 
     public function table(Table $table): Table

@@ -26,10 +26,21 @@ class PendingOrdersByProductTable extends TableWidget
             ->query(
                 Product::query()
                     ->selectRaw('products.*,
+                        COALESCE(product_stocks.total_stock, 0) as total_stock,
                         COALESCE(order_items.total_ordered, 0) as total_ordered,
                         COALESCE(order_items.total_shipped, 0) as total_shipped,
                         COALESCE(order_items.total_ordered, 0) - COALESCE(order_items.total_shipped, 0) as pending_quantity,
                         COALESCE(po_items.total_in_process, 0) as total_in_process')
+                    ->leftJoinSub(
+                        \App\Models\ProductStock::query()
+                            ->select('product_id')
+                            ->selectRaw('SUM(stock) as total_stock')
+                            ->groupBy('product_id'),
+                        'product_stocks',
+                        'products.id',
+                        '=',
+                        'product_stocks.product_id'
+                    )
                     ->leftJoinSub(
                         OrderItem::query()
                             ->select('product_id')
@@ -68,7 +79,7 @@ class PendingOrdersByProductTable extends TableWidget
                     ->label('Produk')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('stock')
+                TextColumn::make('total_stock')
                     ->label('Stok Gudang')
                     ->numeric()
                     ->sortable()
@@ -90,7 +101,7 @@ class PendingOrdersByProductTable extends TableWidget
                     ->numeric()
                     ->getStateUsing(function ($record): int {
                         // Net pending = needed by daerah - current stock - already ordered to printing (in process)
-                        return max(0, ($record->pending_quantity ?? 0) - ($record->stock ?? 0) - ($record->total_in_process ?? 0));
+                        return max(0, ($record->pending_quantity ?? 0) - ($record->total_stock ?? 0) - ($record->total_in_process ?? 0));
                     })
                     ->color(fn (int $state): string => $state > 0 ? 'danger' : 'success'),
             ])

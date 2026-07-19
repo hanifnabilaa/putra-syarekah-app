@@ -54,8 +54,21 @@ class ProductSeeder extends Seeder
             ],
         ];
 
-        foreach ($products as $product) {
-            Product::create($product);
+        $gudang = \App\Models\User::where('role', \App\Enums\UserRole::GUDANG)->first();
+
+        foreach ($products as $productData) {
+            $stock = $productData['stock'] ?? 0;
+            unset($productData['stock']);
+
+            $product = Product::create($productData);
+
+            if ($gudang && $stock > 0) {
+                \App\Models\ProductStock::create([
+                    'product_id' => $product->id,
+                    'gudang_id'  => $gudang->id,
+                    'stock'      => $stock,
+                ]);
+            }
         }
     }
 }

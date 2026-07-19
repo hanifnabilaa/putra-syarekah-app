@@ -30,8 +30,12 @@ class SecretaryOverviewWidget extends StatsOverviewWidget
         // Total products in catalog
         $totalProducts = Product::active()->count();
 
-        // Products with low stock (less than 50)
-        $lowStockProducts = Product::active()->where('stock', '<', 50)->count();
+        // Products with low stock (less than 50 across all warehouses)
+        $lowStockProducts = Product::active()
+            ->withSum('productStocks as total_stock', 'stock')
+            ->get()
+            ->filter(fn ($p) => ($p->total_stock ?? 0) < 50)
+            ->count();
 
         $processingItemsCount = \App\Models\PrintingOrderItem::whereIn('printing_order_id', function ($query) {
             $query->select('id')

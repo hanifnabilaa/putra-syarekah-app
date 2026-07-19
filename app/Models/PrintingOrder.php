@@ -39,36 +39,6 @@ class PrintingOrder extends Model
                 );
             }
         });
-
-        static::saved(function (self $order) {
-            // When printing order is finished, automatically add stock
-            if ($order->isDirty('status') && $order->status === PrintingOrderStatus::SELESAI) {
-                // Ensure we only process if not already processed
-                $hasLogs = \App\Models\StockLog::where('reference_type', self::class)
-                    ->where('reference_id', $order->id)
-                    ->exists();
-
-                if (!$hasLogs) {
-                    foreach ($order->items as $item) {
-                        // Increment actual stock in products table
-                        if ($item->product) {
-                            $item->product->increment('stock', $item->qty);
-
-                            // Create stock log entry
-                            \App\Models\StockLog::create([
-                                'product_id' => $item->product_id,
-                                'user_id' => auth()->id() ?? $order->sekretaris_id,
-                                'reference_type' => self::class,
-                                'reference_id' => $order->id,
-                                'type' => 'in',
-                                'quantity' => $item->qty,
-                                'notes' => 'Penerimaan otomatis dari penyelesaian PO Percetakan ' . $order->order_code,
-                            ]);
-                        }
-                    }
-                }
-            }
-        });
     }
 
     // ─── Helpers ────────────────────────────────────────────────────────────────

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Percetakan\Resources\ProductResource\Pages;
+namespace App\Filament\Sekretaris\Resources\ProductResource\Pages;
 
-use App\Filament\Percetakan\Resources\ProductResource;
+use App\Filament\Sekretaris\Resources\ProductResource;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateProduct extends CreateRecord

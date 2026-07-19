@@ -89,6 +89,17 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(StockLog::class);
     }
 
+    public function printingOrders(): HasMany
+    {
+        // Sekretaris owns PrintingOrders
+        return $this->hasMany(PrintingOrder::class, 'sekretaris_id');
+    }
+
+    public function productStocks(): HasMany
+    {
+        return $this->hasMany(ProductStock::class, 'gudang_id');
+    }
+
     public function confirmedPayments()
     {
         return $this->hasMany(Payment::class, 'confirmed_by');

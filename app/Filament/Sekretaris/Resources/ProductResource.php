@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Percetakan\Resources;
+namespace App\Filament\Sekretaris\Resources;
 
-use App\Filament\Percetakan\Resources\ProductResource\Pages;
+use App\Filament\Sekretaris\Resources\ProductResource\Pages;
 use App\Models\Product;
 use App\Models\StockLog;
 use Filament\Schemas\Schema;
@@ -56,13 +56,6 @@ class ProductResource extends Resource
                     ->prefix('Rp')
                     ->minValue(0),
 
-                TextInput::make('stock')
-                    ->label('Stok Awal')
-                    ->numeric()
-                    ->minValue(0)
-                    ->default(0)
-                    ->hiddenOn('edit'),
-
                 Toggle::make('is_active')
                     ->label('Aktif')
                     ->default(true),
@@ -90,9 +83,8 @@ class ProductResource extends Resource
                     ->money('IDR')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('stock')
-                    ->label('Stok')
-                    ->sortable()
+                Tables\Columns\TextColumn::make('total_stock')
+                    ->label('Total Stok')
                     ->badge()
                     ->color(fn(int $state): string => $state > 0 ? 'success' : 'danger'),
 
@@ -111,37 +103,8 @@ class ProductResource extends Resource
                     ->label('Status Aktif'),
             ])
             ->actions([
-                \Filament\Actions\Action::make('add_stock')
-                    ->label('Tambah Stok')
-                    ->icon('heroicon-m-plus-circle')
-                    ->color('success')
-                    ->form([
-                        TextInput::make('quantity')
-                            ->label('Jumlah Masuk')
-                            ->required()
-                            ->numeric()
-                            ->minValue(1),
-                        Textarea::make('notes')
-                            ->label('Keterangan')
-                            ->rows(2),
-                    ])
-                    ->action(function (Product $record, array $data): void {
-                        $record->increment('stock', $data['quantity']);
-                        StockLog::create([
-                            'product_id' => $record->id,
-                            'user_id' => auth()->id(),
-                            'type' => 'in',
-                            'quantity' => $data['quantity'],
-                            'notes' => $data['notes'] ?? null,
-                        ]);
-                        Notification::make()
-                            ->title('Stok berhasil ditambahkan')
-                            ->success()
-                            ->send();
-                    }),
-
                 \Filament\Actions\Action::make('view_stock_log')
-                    ->label('Riwayat Stok')
+                    ->label('Riwayat Stok Keseluruhan')
                     ->icon('heroicon-m-clock')
                     ->color('info')
                     ->url(fn(Product $record): string => static::getUrl('stock-log', ['record' => $record])),

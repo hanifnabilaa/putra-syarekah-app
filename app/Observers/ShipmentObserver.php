@@ -22,8 +22,12 @@ class ShipmentObserver
                 $product   = $orderItem->product;
                 $qty       = $shipmentItem->quantity;
 
-                // Kurangi stok produk
-                $product->decrement('stock', $qty);
+                // Kurangi stok produk untuk gudang ini
+                $productStock = \App\Models\ProductStock::firstOrCreate([
+                    'product_id' => $product->id,
+                    'gudang_id'  => auth()->id(),
+                ]);
+                $productStock->decrement('stock', $qty);
 
                 // Tambah shipped_quantity di order_item
                 $orderItem->increment('shipped_quantity', $qty);

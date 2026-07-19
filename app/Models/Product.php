@@ -15,13 +15,11 @@ class Product extends Model
         'description',
         'image',
         'price',
-        'stock',
         'is_active',
     ];
 
     protected $casts = [
         'price'     => 'decimal:2',
-        'stock'     => 'integer',
         'is_active' => 'boolean',
         'image'     => 'array',
     ];
@@ -37,6 +35,11 @@ class Product extends Model
         return array_map(function ($path) {
             return Storage::disk('public')->url($path);
         }, is_string($this->image) ? [$this->image] : $this->image);
+    }
+
+    public function getTotalStockAttribute(): int
+    {
+        return $this->productStocks()->sum('stock');
     }
 
     // ─── Scopes ─────────────────────────────────────────────────────────────────
@@ -56,5 +59,10 @@ class Product extends Model
     public function stockLogs()
     {
         return $this->hasMany(StockLog::class);
+    }
+
+    public function productStocks()
+    {
+        return $this->hasMany(ProductStock::class);
     }
 }
