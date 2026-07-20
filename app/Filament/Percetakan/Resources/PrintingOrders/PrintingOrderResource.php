@@ -48,7 +48,7 @@ class PrintingOrderResource extends Resource
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         return parent::getEloquentQuery()->whereHas('percetakan', function ($query) {
-            $query->where('user_id', auth()->id());
+            $query->where('user_id', auth()->user()->getMasterId());
         });
     }
 }

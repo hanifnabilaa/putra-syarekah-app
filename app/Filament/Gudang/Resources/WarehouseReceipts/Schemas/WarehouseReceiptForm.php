@@ -63,7 +63,7 @@ class WarehouseReceiptForm
                                     ->default(fn () => 'RCV-' . date('Ymd') . '-' . rand(100, 999))
                                     ->label('Receipt Code'),
                                 Hidden::make('gudang_id')
-                                    ->default(fn () => auth()->id()),
+                                    ->default(fn () => auth()->user()->getMasterId()),
                                 Select::make('status')
                                     ->options(WarehouseReceiptStatus::class)
                                     ->default(WarehouseReceiptStatus::BELUM_PRODUKSI->value)

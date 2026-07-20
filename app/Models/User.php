@@ -19,6 +19,7 @@ class User extends Authenticatable implements FilamentUser
         'email',
         'password',
         'role',
+        'parent_id',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -35,14 +36,19 @@ class User extends Authenticatable implements FilamentUser
     {
         return match ($panel->getId()) {
             'sekretaris' => $this->role === UserRole::SEKRETARIS,
-            'percetakan' => $this->role === UserRole::PERCETAKAN,
-            'gudang'     => $this->role === UserRole::GUDANG,
+            'percetakan' => in_array($this->role, [UserRole::PERCETAKAN, UserRole::KARYAWAN_PERCETAKAN]),
+            'gudang'     => in_array($this->role, [UserRole::GUDANG, UserRole::KARYAWAN_GUDANG]),
             'daerah'     => $this->role === UserRole::DAERAH,
             'keuangan'   => $this->role === UserRole::KEUANGAN,
             'atasan'     => $this->role === UserRole::ATASAN,
-            'admin'      => in_array($this->role, [UserRole::SEKRETARIS, UserRole::PERCETAKAN, UserRole::GUDANG, UserRole::KEUANGAN, UserRole::ATASAN]),
+            'admin'      => in_array($this->role, [UserRole::SEKRETARIS, UserRole::PERCETAKAN, UserRole::KARYAWAN_PERCETAKAN, UserRole::GUDANG, UserRole::KARYAWAN_GUDANG, UserRole::KEUANGAN, UserRole::ATASAN]),
             default      => false,
         };
+    }
+
+    public function getMasterId(): int
+    {
+        return $this->parent_id ?? $this->id;
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -54,12 +60,12 @@ class User extends Authenticatable implements FilamentUser
 
     public function isPercetakan(): bool
     {
-        return $this->role === UserRole::PERCETAKAN;
+        return in_array($this->role, [UserRole::PERCETAKAN, UserRole::KARYAWAN_PERCETAKAN]);
     }
 
     public function isGudang(): bool
     {
-        return $this->role === UserRole::GUDANG;
+        return in_array($this->role, [UserRole::GUDANG, UserRole::KARYAWAN_GUDANG]);
     }
 
     public function isDaerah(): bool
@@ -82,6 +88,16 @@ class User extends Authenticatable implements FilamentUser
     public function daerah()
     {
         return $this->hasOne(Daerah::class);
+    }
+
+    public function percetakan()
+    {
+        return $this->hasOne(Percetakan::class);
+    }
+
+    public function gudang()
+    {
+        return $this->hasOne(Gudang::class);
     }
 
     public function stockLogs()

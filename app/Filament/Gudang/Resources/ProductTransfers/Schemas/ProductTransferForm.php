@@ -10,11 +10,11 @@ use App\Models\ProductStock;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Get;
+use Filament\Schemas\Components\Utilities\Get;
 
 class ProductTransferForm
 {
@@ -25,7 +25,7 @@ class ProductTransferForm
                 Section::make('Informasi Transfer')->schema([
                     Select::make('to_gudang_id')
                         ->label('Gudang Tujuan')
-                        ->options(User::where('role', UserRole::GUDANG)->where('id', '!=', auth()->id())->pluck('name', 'id'))
+                        ->options(User::where('role', UserRole::GUDANG)->where('id', '!=', auth()->user()->getMasterId())->pluck('name', 'id'))
                         ->required()
                         ->searchable(),
                     DatePicker::make('transfer_date')
@@ -59,7 +59,7 @@ class ProductTransferForm
                                             if (!$productId) return;
                                             
                                             $stock = ProductStock::where('product_id', $productId)
-                                                ->where('gudang_id', auth()->id())
+                                                ->where('gudang_id', auth()->user()->getMasterId())
                                                 ->value('stock') ?? 0;
                                                 
                                             if ($value > $stock) {

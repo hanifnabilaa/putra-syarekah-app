@@ -12,7 +12,7 @@ class CreateProductTransfer extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['transfer_code'] = 'TRF-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
-        $data['from_gudang_id'] = auth()->id();
+        $data['from_gudang_id'] = auth()->user()->getMasterId();
         $data['created_by'] = auth()->id();
         return $data;
     }

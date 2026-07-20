@@ -44,8 +44,8 @@ class ProductTransferResource extends Resource
     {
         return parent::getEloquentQuery()
             ->where(function ($query) {
-                $query->where('from_gudang_id', auth()->id())
-                      ->orWhere('to_gudang_id', auth()->id());
+                $query->where('from_gudang_id', auth()->user()->getMasterId())
+                      ->orWhere('to_gudang_id', auth()->user()->getMasterId());
             });
     }
 

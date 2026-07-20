@@ -86,7 +86,7 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('gudang_stock')
                     ->label('Stok Saya')
                     ->getStateUsing(function (Product $record) {
-                        return $record->productStocks()->where('gudang_id', auth()->id())->value('stock') ?? 0;
+                        return $record->productStocks()->where('gudang_id', auth()->user()->getMasterId())->value('stock') ?? 0;
                     })
                     ->badge()
                     ->color(fn(int $state): string => $state > 0 ? 'success' : 'danger'),

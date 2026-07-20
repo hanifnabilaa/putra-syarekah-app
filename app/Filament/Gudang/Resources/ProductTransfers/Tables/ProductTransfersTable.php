@@ -2,7 +2,7 @@
 
 namespace App\Filament\Gudang\Resources\ProductTransfers\Tables;
 
-use Filament\Tables\Actions\ViewAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -30,10 +30,10 @@ class ProductTransfersTable
             ->filters([
                 //
             ])
-            ->actions([
+            ->recordActions([
                 ViewAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 //
             ]);
     }

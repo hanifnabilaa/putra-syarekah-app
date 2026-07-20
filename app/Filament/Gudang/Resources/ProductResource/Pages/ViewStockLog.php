@@ -32,7 +32,7 @@ class ViewStockLog extends Page implements HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn (): Builder => $this->record->stockLogs()->where('user_id', auth()->id())->getQuery()->latest())
+            ->query(fn (): Builder => $this->record->stockLogs()->where('user_id', auth()->user()->getMasterId())->getQuery()->latest())
             ->columns([
                 TextColumn::make('created_at')->label('Tanggal')->dateTime('d M Y H:i')->sortable(),
                 TextColumn::make('type')->label('Tipe')
