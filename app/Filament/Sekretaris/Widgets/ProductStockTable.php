@@ -23,27 +23,29 @@ class ProductStockTable extends TableWidget
             ->query(
                 Product::query()
                     ->active()
-                    ->orderBy('stock', 'asc')
+                    ->withSum('productStocks', 'stock')
+                    ->orderBy('product_stocks_sum_stock', 'asc')
             )
             ->columns([
                 TextColumn::make('name')
                     ->label('Produk')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('stock')
+                TextColumn::make('product_stocks_sum_stock')
                     ->label('Stok Gudang')
                     ->numeric()
                     ->sortable()
                     ->weight('bold')
-                    ->color(fn (int $state): string => $state < 50 ? 'danger' : ($state < 100 ? 'warning' : 'success')),
+                    ->color(fn (?int $state): string => $state !== null && $state < 50 ? 'danger' : ($state !== null && $state < 100 ? 'warning' : 'success')),
                 TextColumn::make('stock_status')
                     ->label('Status')
                     ->getStateUsing(function (Product $record): string {
-                        if ($record->stock < 20) {
+                        $stock = $record->product_stocks_sum_stock ?? 0;
+                        if ($stock < 20) {
                             return 'Kritis';
-                        } elseif ($record->stock < 50) {
+                        } elseif ($stock < 50) {
                             return 'Rendah';
-                        } elseif ($record->stock < 100) {
+                        } elseif ($stock < 100) {
                             return 'Menengah';
                         }
                         return 'Aman';

@@ -16,4 +16,9 @@ class EditWarehouseReceipt extends EditRecord
             DeleteAction::make(),
         ];
     }
+
+    protected function afterSave(): void
+    {
+        $this->record->processStockUpdate();
+    }
 }

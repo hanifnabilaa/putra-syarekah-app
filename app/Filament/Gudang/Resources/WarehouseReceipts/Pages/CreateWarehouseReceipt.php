@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateWarehouseReceipt extends CreateRecord
 {
     protected static string $resource = WarehouseReceiptResource::class;
+
+    protected function afterCreate(): void
+    {
+        $this->record->processStockUpdate();
+    }
 }
