@@ -104,4 +104,14 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Payment::class, 'confirmed_by');
     }
+
+    public function productTransfersSent()
+    {
+        return $this->hasMany(ProductTransfer::class, 'from_gudang_id');
+    }
+
+    public function productTransfersReceived()
+    {
+        return $this->hasMany(ProductTransfer::class, 'to_gudang_id');
+    }
 }
