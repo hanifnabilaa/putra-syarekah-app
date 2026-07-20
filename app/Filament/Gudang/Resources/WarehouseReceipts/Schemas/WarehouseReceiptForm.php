@@ -3,15 +3,19 @@
 namespace App\Filament\Gudang\Resources\WarehouseReceipts\Schemas;
 
 use App\Enums\WarehouseReceiptStatus;
+use App\Models\PrintingOrder;
+use App\Models\WarehouseReceipt;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Set;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class WarehouseReceiptForm
 {
@@ -24,7 +28,33 @@ class WarehouseReceiptForm
                         Section::make('Penerimaan Info')
                             ->schema([
                                 Select::make('printing_order_id')
-                                    ->relationship('printingOrder', 'order_code')
+                                    ->relationship(
+                                        name: 'printingOrder',
+                                        titleAttribute: 'order_code',
+                                        modifyQueryUsing: fn (Builder $query, ?WarehouseReceipt $record) => $query->whereDoesntHave('warehouseReceipts', function (Builder $q) use ($record) {
+                                            $q->where('status', WarehouseReceiptStatus::SELESAI_PRODUKSI);
+                                            if ($record) {
+                                                $q->where('id', '!=', $record->id);
+                                            }
+                                        })
+                                    )
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, Set $set) {
+                                        if (! $state) {
+                                            return;
+                                        }
+                                        $po = PrintingOrder::with('items')->find($state);
+                                        if ($po) {
+                                            $items = $po->items->map(fn ($item) => [
+                                                'product_id' => $item->product_id,
+                                                'qty_ordered' => $item->quantity ?? 0,
+                                                'qty_received' => $item->quantity ?? 0,
+                                            ])->toArray();
+                                            $set('items', $items);
+                                        }
+                                    })
+                                    ->searchable()
+                                    ->preload()
                                     ->required()
                                     ->label('Printing Order (PO)'),
                                 TextInput::make('receipt_code')
