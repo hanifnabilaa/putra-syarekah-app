@@ -33,7 +33,10 @@ class BillResource extends Resource
     {
         return $form->schema([
             Section::make('Info Tagihan')->schema([
-                TextInput::make('order.order_code')->label('Kode Pesanan')->disabled(),
+                TextInput::make('order_code')
+                    ->label('Kode Pesanan')
+                    ->formatStateUsing(fn ($record) => $record?->order?->order_code)
+                    ->disabled(),
                 TextInput::make('total_bill')->label('Total Tagihan')->prefix('Rp')->disabled(),
                 TextInput::make('total_paid')->label('Total Dibayar')->prefix('Rp')->disabled(),
                 TextInput::make('remaining_bill')->label('Sisa Tagihan')->prefix('Rp')->disabled(),
