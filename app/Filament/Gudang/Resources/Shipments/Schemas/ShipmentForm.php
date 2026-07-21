@@ -28,9 +28,12 @@ class ShipmentForm
                             ->schema([
                                 Select::make('order_id')
                                     ->label('Pesanan Daerah')
-                                    ->options(fn () => Order::with('daerah')
+                                    ->options(fn () => Order::with(['daerah', 'bill'])
                                         ->get()
-                                        ->mapWithKeys(fn ($o) => [$o->id => "{$o->order_code} — {$o->daerah->name}"]))
+                                        ->mapWithKeys(function ($o) {
+                                            $statusPay = $o->bill?->status ? $o->bill->status->label() : 'Belum Ada Tagihan';
+                                            return [$o->id => "{$o->order_code} — {$o->daerah->name} [Bayar: {$statusPay}]"];
+                                        }))
                                     ->required()
                                     ->searchable()
                                     ->live()
