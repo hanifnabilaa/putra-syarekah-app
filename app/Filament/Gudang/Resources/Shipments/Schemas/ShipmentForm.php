@@ -28,12 +28,25 @@ class ShipmentForm
                             ->schema([
                                 Select::make('order_id')
                                     ->label('Pesanan Daerah')
-                                    ->options(fn () => Order::with(['daerah', 'bill'])
-                                        ->get()
-                                        ->mapWithKeys(function ($o) {
-                                            $statusPay = $o->bill?->status ? $o->bill->status->label() : 'Belum Ada Tagihan';
-                                            return [$o->id => "{$o->order_code} — {$o->daerah->name} [Bayar: {$statusPay}]"];
-                                        }))
+                                    ->options(function (?\App\Models\Shipment $record) {
+                                        return Order::with(['daerah', 'bill', 'items'])
+                                            ->where(function ($query) use ($record) {
+                                                $query->where('status', \App\Enums\OrderStatus::APPROVED->value)
+                                                    ->whereHas('items', function ($q) {
+                                                        $q->whereRaw('COALESCE(shipped_quantity, 0) < quantity');
+                                                    });
+
+                                                if ($record && $record->order_id) {
+                                                    $query->orWhere('id', $record->order_id);
+                                                }
+                                            })
+                                            ->get()
+                                            ->mapWithKeys(function ($o) {
+                                                $statusPay = $o->bill?->status ? $o->bill->status->label() : 'Belum Ada Tagihan';
+                                                $remainingItemsCount = $o->items->filter(fn ($item) => $item->remaining_quantity > 0)->count();
+                                                return [$o->id => "{$o->order_code} — {$o->daerah->name} [Bayar: {$statusPay}] ({$remainingItemsCount} item belum dikirim)"];
+                                            });
+                                    })
                                     ->required()
                                     ->searchable()
                                     ->live()
@@ -69,7 +82,7 @@ class ShipmentForm
                                     ->schema([
                                         Select::make('order_item_id')
                                             ->label('Produk')
-                                            ->options(function (Get $get) {
+                                            ->options(function (Get $get, ?\App\Models\ShipmentItem $record) {
                                                 $orderId = $get('../../order_id');
                                                 if (!$orderId) {
                                                     return [];
@@ -77,8 +90,11 @@ class ShipmentForm
                                                 return OrderItem::where('order_id', $orderId)
                                                     ->with('product')
                                                     ->get()
+                                                    ->filter(function ($item) use ($record) {
+                                                        return $item->remaining_quantity > 0 || ($record && $record->order_item_id === $item->id);
+                                                    })
                                                     ->mapWithKeys(fn ($item) => [
-                                                        $item->id => "{$item->product->name} (Qty: {$item->quantity})"
+                                                        $item->id => "{$item->product->name} (Sisa Kirim: {$item->remaining_quantity} dari {$item->quantity})"
                                                     ]);
                                             })
                                             ->required()
