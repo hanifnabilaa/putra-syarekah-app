@@ -36,7 +36,6 @@ class AtasanPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Atasan/Widgets'), for: 'App\Filament\Atasan\Widgets')
             ->widgets([
                 \Filament\Widgets\AccountWidget::class,
-                \Filament\Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
