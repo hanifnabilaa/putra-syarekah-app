@@ -98,11 +98,15 @@ class BillResource extends Resource
                     ->color('success')
                     ->visible(fn (Bill $record) => $record->status !== BillStatus::PAID)
                     ->form([
+                        \Filament\Forms\Components\Placeholder::make('sisa_tagihan')
+                            ->label('Sisa Tagihan (Kekurangan)')
+                            ->content(fn (Bill $record) => 'Rp ' . number_format($record->remaining_bill, 0, ',', '.')),
                         TextInput::make('amount')
                             ->label('Jumlah Dibayar (Rp)')
                             ->required()
                             ->numeric()
                             ->prefix('Rp')
+                            ->default(fn (Bill $record) => $record->remaining_bill)
                             ->minValue(1),
                         DatePicker::make('payment_date')
                             ->label('Tanggal Pembayaran')
