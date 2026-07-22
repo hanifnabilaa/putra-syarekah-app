@@ -25,7 +25,7 @@ class ShipmentObserver
                 // Kurangi stok produk untuk gudang ini
                 $productStock = \App\Models\ProductStock::firstOrCreate([
                     'product_id' => $product->id,
-                    'gudang_id'  => auth()->id(),
+                    'gudang_id'  => auth()->user() ? auth()->user()->getMasterId() : auth()->id(),
                 ]);
                 $productStock->decrement('stock', $qty);
 
@@ -35,7 +35,7 @@ class ShipmentObserver
                 // Catat stock_log dengan reference (untuk menghindari duplikasi)
                 StockLog::create([
                     'product_id'    => $product->id,
-                    'user_id'       => auth()->id(),
+                    'user_id'       => auth()->user() ? auth()->user()->getMasterId() : auth()->id(),
                     'reference_type' => Shipment::class,
                     'reference_id'  => $shipment->id,
                     'type'          => 'out',

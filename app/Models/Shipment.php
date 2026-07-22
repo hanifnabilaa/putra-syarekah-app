@@ -41,30 +41,6 @@ class Shipment extends Model
                 $shipment->queue_order = (self::max('queue_order') ?? 0) + 1;
             }
         });
-
-        static::saved(function (self $shipment) {
-            // When shipment is sent (shipped/delivered), decrement stock
-            if (in_array($shipment->status, [ShipmentStatus::SHIPPED, ShipmentStatus::DELIVERED])) {
-                $hasLogs = \App\Models\StockLog::where('reference_type', self::class)
-                    ->where('reference_id', $shipment->id)
-                    ->exists();
-
-                if (!$hasLogs) {
-                    // ShipmentItem has order_item_id which has product_id
-                    foreach ($shipment->items as $item) {
-                        \App\Models\StockLog::create([
-                            'product_id' => $item->orderItem->product_id,
-                            'user_id' => auth()->id(),
-                            'reference_type' => self::class,
-                            'reference_id' => $shipment->id,
-                            'type' => 'out',
-                            'quantity' => $item->quantity,
-                            'notes' => 'Pengiriman ke pesanan ' . $shipment->order->order_code,
-                        ]);
-                    }
-                }
-            }
-        });
     }
 
     // ─── Relations ───────────────────────────────────────────────────────────────
