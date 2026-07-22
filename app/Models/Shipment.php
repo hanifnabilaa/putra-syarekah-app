@@ -43,6 +43,66 @@ class Shipment extends Model
         });
     }
 
+    public function processStockUpdate(): void
+    {
+        if (in_array($this->status, [ShipmentStatus::SHIPPED, ShipmentStatus::DELIVERED])) {
+            $hasLogs = StockLog::where('reference_type', self::class)
+                ->where('reference_id', $this->id)
+                ->exists();
+
+            if (!$hasLogs) {
+                $this->load('items.orderItem.product');
+
+                if ($this->items->isEmpty()) {
+                    return;
+                }
+
+                $gudangId = auth()->user() ? auth()->user()->getMasterId() : auth()->id();
+
+                foreach ($this->items as $shipmentItem) {
+                    $orderItem = $shipmentItem->orderItem;
+                    if (!$orderItem) {
+                        continue;
+                    }
+
+                    $product = $orderItem->product;
+                    $qty     = $shipmentItem->quantity;
+
+                    // Kurangi stok pada ProductStock gudang
+                    $productStock = ProductStock::firstOrCreate([
+                        'product_id' => $product->id,
+                        'gudang_id'  => $gudangId,
+                    ]);
+                    $productStock->decrement('stock', $qty);
+
+                    // Tambah shipped_quantity di order_items
+                    $orderItem->increment('shipped_quantity', $qty);
+
+                    // Catat log stok keluar
+                    StockLog::create([
+                        'product_id'     => $product->id,
+                        'user_id'        => $gudangId,
+                        'reference_type' => self::class,
+                        'reference_id'   => $this->id,
+                        'type'           => 'out',
+                        'quantity'       => $qty,
+                        'notes'          => "Pengiriman #{$this->id} — Pesanan " . ($this->order ? $this->order->order_code : ''),
+                    ]);
+                }
+
+                // Cek jika seluruh order sudah dikirim penuh
+                if ($this->order) {
+                    $this->order->load('items');
+                    $isFullyShipped = $this->order->items->every(fn ($item) => $item->shipped_quantity >= $item->quantity);
+
+                    if ($isFullyShipped && $this->order->status !== \App\Enums\OrderStatus::FINISHED) {
+                        $this->order->update(['status' => \App\Enums\OrderStatus::FINISHED]);
+                    }
+                }
+            }
+        }
+    }
+
     // ─── Relations ───────────────────────────────────────────────────────────────
 
     public function order()

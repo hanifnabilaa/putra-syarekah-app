@@ -78,6 +78,7 @@ class ShipmentForm
                         Section::make('Items Dikirim')
                             ->schema([
                                 Repeater::make('items')
+                                    ->relationship()
                                     ->label('Item yang Dikirim')
                                     ->schema([
                                         Select::make('order_item_id')

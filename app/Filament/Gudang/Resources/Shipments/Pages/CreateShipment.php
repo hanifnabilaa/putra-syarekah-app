@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateShipment extends CreateRecord
 {
     protected static string $resource = ShipmentResource::class;
+
+    protected function afterCreate(): void
+    {
+        $this->record->processStockUpdate();
+    }
 }

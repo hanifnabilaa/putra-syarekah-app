@@ -10,6 +10,11 @@ class EditShipment extends EditRecord
 {
     protected static string $resource = ShipmentResource::class;
 
+    protected function afterSave(): void
+    {
+        $this->record->processStockUpdate();
+    }
+
     protected function getHeaderActions(): array
     {
         return [
